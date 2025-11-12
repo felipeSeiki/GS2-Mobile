@@ -1,24 +1,50 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator } from 'react-native';
 import theme from '../styles/theme';
 
 interface ButtonProps extends TouchableOpacityProps {
-  children: React.ReactNode;
+  title: string;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
+  loading?: boolean;
+  fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ children, disabled, style, ...props }) => {
+export const Button: React.FC<ButtonProps> = ({ 
+  title, 
+  variant = 'primary',
+  size = 'medium',
+  loading = false,
+  fullWidth = false,
+  disabled, 
+  style, 
+  ...props 
+}) => {
+  const buttonStyle = [
+    styles.button,
+    styles[variant],
+    styles[size],
+    fullWidth && styles.fullWidth,
+    (disabled || loading) && styles.disabled,
+    style
+  ];
+
+  const textStyle = [
+    styles.text,
+    styles[`${variant}Text`],
+    styles[`${size}Text`],
+    (disabled || loading) && styles.disabledText
+  ];
+
   return (
     <TouchableOpacity 
-      style={[
-        styles.button,
-        disabled && styles.disabled,
-        style
-      ]} 
-      disabled={disabled}
+      style={buttonStyle}
+      disabled={disabled || loading}
       {...props}
     >
-      <Text style={[styles.text, disabled && styles.disabledText]}>
-        {children}
+      {loading && <ActivityIndicator size="small" color="#FFFFFF" style={styles.loader} />}
+      <Text style={textStyle}>
+        {loading ? 'Carregando...' : title}
       </Text>
     </TouchableOpacity>
   );
@@ -26,22 +52,80 @@ export const Button: React.FC<ButtonProps> = ({ children, disabled, style, ...pr
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: theme.colors.primary,
-    padding: theme.spacing.medium,
-    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
+  
+  // Variants
+  primary: {
+    backgroundColor: theme.colors.primary,
+  },
+  secondary: {
+    backgroundColor: theme.colors.secondary,
+  },
+  outline: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+  },
+  
+  // Sizes
+  small: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  medium: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  large: {
+    paddingHorizontal: 24,
+    paddingVertical: 18,
+  },
+  
+  // Text styles
   text: {
-    color: theme.colors.white,
-    fontSize: theme.typography.body.fontSize,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  primaryText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  secondaryText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
+  outlineText: {
+    color: theme.colors.primary,
+    fontSize: 16,
+  },
+  smallText: {
+    fontSize: 14,
+  },
+  mediumText: {
+    fontSize: 16,
+  },
+  largeText: {
+    fontSize: 18,
+  },
+  
+  // States
+  fullWidth: {
+    width: '100%',
   },
   disabled: {
     backgroundColor: theme.colors.secondary,
-    opacity: 0.7,
+    opacity: 0.6,
   },
   disabledText: {
-    color: theme.colors.text,
+    color: '#FFFFFF',
+  },
+  loader: {
+    marginRight: 8,
   },
 });
