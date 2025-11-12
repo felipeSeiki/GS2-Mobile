@@ -1,28 +1,42 @@
-import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { LoginScreenNavigationProp } from "../type/type";
-import { useAuth } from "../../../contexts/AuthContext";
+import { Alert } from "react-native";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../types/navigation';
 
-export const useLogin = () => {
-  const { signIn } = useAuth();
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
-  const [user, setUser] = useState("");
+export const useLogin = (navigation: LoginScreenNavigationProp) => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos");
+      return;
+    }
+
+    setLoading(true);
+    
     try {
-  await signIn({ login: user, password });
+      // Simulação de login - aqui você integraria com seu service de autenticação
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Por enquanto, navega direto para a lista de vagas
+      navigation.navigate('JobsList');
     } catch (error) {
-      alert("Usuário ou senha inválidos");
+      Alert.alert("Erro", "Email ou senha inválidos");
+    } finally {
+      setLoading(false);
     }
   };
 
   return {
-    signIn,
-    user, setUser,
-    password, setPassword,
-    navigation,
-    handleLogin
+    email,
+    setEmail,
+    password,
+    setPassword,
+    loading,
+    handleLogin,
   };
 };
