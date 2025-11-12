@@ -1,81 +1,31 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Job } from '../../../types';
+import { JobService } from '../../../services';
 
-// Mock data para simular vagas
-const mockJobs = [
-  {
-    id: 1,
-    title: 'Desenvolvedor(a) Front-end Pleno',
-    company: 'TechCorp',
-    location: 'São Paulo, SP',
-    workType: 'remote' as const,
-    salaryMin: 10000,
-    salaryMax: 15000,
-    currency: 'BRL',
-    skills: ['React', 'JavaScript', 'TypeScript'],
-    postedAt: '2024-07-01T09:00:00Z',
-    category: 'Tecnologia'
-  },
-  {
-    id: 2,
-    title: 'UX/UI Designer Sênior',
-    company: 'InovaSoft',
-    location: 'Remoto',
-    workType: 'remote' as const,
-    salaryMin: 8000,
-    salaryMax: 12000,
-    currency: 'BRL',
-    skills: ['Figma', 'Design System', 'User Research'],
-    postedAt: '2024-07-05T10:30:00Z',
-    category: 'Design'
-  },
-  {
-    id: 3,
-    title: 'Analista de Dados Júnior',
-    company: 'DataPrime',
-    location: 'Belo Horizonte, MG',
-    workType: 'hybrid' as const,
-    salaryMin: 6000,
-    salaryMax: 9000,
-    currency: 'BRL',
-    skills: ['SQL', 'Python', 'Power BI'],
-    postedAt: '2024-07-08T08:15:00Z',
-    category: 'Dados'
-  },
-  {
-    id: 4,
-    title: 'Engenheiro(a) DevOps Pleno',
-    company: 'CloudNine',
-    location: 'Remoto (Brasil)',
-    workType: 'remote' as const,
-    salaryMin: 12000,
-    salaryMax: 18000,
-    currency: 'BRL',
-    skills: ['AWS', 'Kubernetes', 'Docker'],
-    postedAt: '2024-07-03T14:00:00Z',
-    category: 'Tecnologia'
-  },
-  {
-    id: 5,
-    title: 'Desenvolvedor(a) Back-end Júnior',
-    company: 'TechCorp',
-    location: 'São Paulo, SP',
-    workType: 'hybrid' as const,
-    salaryMin: 7000,
-    salaryMax: 10000,
-    currency: 'BRL',
-    skills: ['Node.js', 'Python', 'MongoDB'],
-    postedAt: '2024-07-09T16:20:00Z',
-    category: 'Tecnologia'
-  }
-];
-
-const categories = ['Todas', 'Tecnologia', 'Design', 'Dados', 'Marketing'];
+const categories = ['Todas', 'Desenvolvimento', 'Design', 'Marketing', 'Dados'];
 
 export const useJobsList = () => {
-  const [jobs, setJobs] = useState(mockJobs);
-  const [loading, setLoading] = useState(false);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas');
+
+  // Carregar vagas iniciais
+  useEffect(() => {
+    const loadJobs = async () => {
+      setLoading(true);
+      try {
+        const allJobs = await JobService.getAllJobs();
+        setJobs(allJobs);
+      } catch (error) {
+        console.error('Erro ao carregar vagas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadJobs();
+  }, []);
 
   // Filtrar vagas baseado na busca e categoria
   const filteredJobs = useMemo(() => {
@@ -83,38 +33,47 @@ export const useJobsList = () => {
 
     // Filtrar por categoria
     if (selectedCategory !== 'Todas') {
-      filtered = filtered.filter(job => job.category === selectedCategory);
+      filtered = filtered.filter((job: Job) => job.category === selectedCategory);
     }
 
     // Filtrar por busca
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(job => 
+      filtered = filtered.filter((job: Job) => 
         job.title.toLowerCase().includes(query) ||
         job.company.toLowerCase().includes(query) ||
-        job.skills.some(skill => skill.toLowerCase().includes(query))
+        job.location.toLowerCase().includes(query)
       );
     }
 
     return filtered;
   }, [jobs, selectedCategory, searchQuery]);
 
-  // Simular carregamento inicial
-  useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      setLoading(true);
+      try {
+        const searchResults = await JobService.searchJobs(query);
+        setJobs(searchResults);
+      } catch (error) {
+        console.error('Erro na busca:', error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Recarregar todas as vagas se a busca estiver vazia
+      const allJobs = await JobService.getAllJobs();
+      setJobs(allJobs);
+    }
+  };
 
   return {
     jobs,
     filteredJobs,
     loading,
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: handleSearch,
     selectedCategory,
     setSelectedCategory,
     categories,
