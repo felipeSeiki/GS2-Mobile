@@ -121,10 +121,18 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#2A2A2A',
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    padding: 18,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#3A3A3A',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   header: {
     flexDirection: 'row',
@@ -167,12 +175,12 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   details: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   detailText: {
     color: '#CCCCCC',
@@ -188,22 +196,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    flexWrap: 'nowrap',
+    overflow: 'hidden',
   },
   skillTag: {
     backgroundColor: '#4A9EFF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginRight: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginRight: 8,
   },
   skillText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: '600',
   },
   moreSkills: {
-    color: '#CCCCCC',
+    color: '#4A9EFF',
     fontSize: 12,
+    fontWeight: '500',
   },
   postedDate: {
     color: '#999999',

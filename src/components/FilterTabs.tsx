@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface FilterTabsProps {
   options: string[];
@@ -12,30 +13,70 @@ export const FilterTabs: React.FC<FilterTabsProps> = ({
   selectedOption,
   onSelectOption,
 }) => {
-  return (
-    <ScrollView 
-      horizontal 
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSelectOption = (option: string) => {
+    onSelectOption(option);
+    setIsOpen(false);
+  };
+
+  const renderOption = ({ item, index }: { item: string, index: number }) => (
+    <TouchableOpacity
+      style={[
+        styles.dropdownItem,
+        selectedOption === item && styles.selectedDropdownItem,
+        index === options.length - 1 && styles.lastDropdownItem
+      ]}
+      onPress={() => handleSelectOption(item)}
     >
-      {options.map((option, index) => (
+      <Text style={[
+        styles.dropdownItemText,
+        selectedOption === item && styles.selectedDropdownItemText
+      ]}>
+        {item}
+      </Text>
+      {selectedOption === item && (
+        <Ionicons name="checkmark" size={20} color="#4A9EFF" />
+      )}
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.dropdown}
+        onPress={() => setIsOpen(!isOpen)}
+      >
+        <Text style={styles.dropdownText}>{selectedOption}</Text>
+        <Ionicons 
+          name={isOpen ? "chevron-up" : "chevron-down"} 
+          size={20} 
+          color="#FFFFFF" 
+        />
+      </TouchableOpacity>
+
+      <Modal
+        visible={isOpen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
         <TouchableOpacity
-          key={index}
-          style={[
-            styles.tab,
-            selectedOption === option && styles.selectedTab
-          ]}
-          onPress={() => onSelectOption(option)}
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsOpen(false)}
         >
-          <Text style={[
-            styles.tabText,
-            selectedOption === option && styles.selectedTabText
-          ]}>
-            {option}
-          </Text>
+          <View style={styles.dropdownModal}>
+            <FlatList
+              data={options}
+              renderItem={({ item, index }) => renderOption({ item, index })}
+              keyExtractor={(item) => item}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
         </TouchableOpacity>
-      ))}
-    </ScrollView>
+      </Modal>
+    </View>
   );
 };
 
@@ -44,26 +85,59 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
-  tab: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#2A2A2A',
-    marginRight: 12,
+  dropdown: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#333333',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#3A3A3A',
+    borderColor: '#4A4A4A',
   },
-  selectedTab: {
-    backgroundColor: '#4A9EFF',
-    borderColor: '#4A9EFF',
-  },
-  tabText: {
-    color: '#CCCCCC',
-    fontSize: 14,
+  dropdownText: {
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: '500',
   },
-  selectedTabText: {
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownModal: {
+    backgroundColor: '#2A2A2A',
+    borderRadius: 12,
+    marginHorizontal: 20,
+    maxHeight: 300,
+    minWidth: 200,
+    borderWidth: 1,
+    borderColor: '#4A4A4A',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#3A3A3A',
+  },
+  selectedDropdownItem: {
+    backgroundColor: 'rgba(74, 158, 255, 0.1)',
+  },
+  dropdownItemText: {
     color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  selectedDropdownItemText: {
+    color: '#4A9EFF',
     fontWeight: '600',
+  },
+  lastDropdownItem: {
+    borderBottomWidth: 0,
   },
 });

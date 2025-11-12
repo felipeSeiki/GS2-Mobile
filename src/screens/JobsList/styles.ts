@@ -56,6 +56,7 @@ export const styles = StyleSheet.create({
   jobsList: {
     paddingHorizontal: 20,
     paddingBottom: 100,
+    paddingTop: 8,
   },
   bottomTabBar: {
     position: 'absolute',
