@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,36 +8,32 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconContainer: {
+    marginBottom: 60,
+  },
+  titleSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 100,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 12,
+    lineHeight: 40,
+    marginBottom: 20,
   },
   subtitle: {
     fontSize: 16,
     color: '#CCCCCC',
     textAlign: 'center',
-    marginBottom: 40,
     lineHeight: 24,
   },
-  formContainer: {
-    gap: 20,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: -8,
-    marginBottom: 8,
-  },
-  forgotPasswordText: {
-    color: '#4A9EFF',
-    fontSize: 14,
+  buttonSection: {
+    width: '100%',
+    paddingHorizontal: 20,
   },
 });

@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
 import { useRegister } from './hook/useRegister';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
+import { styles } from './styles';
 
 type RegisterScreenProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -91,33 +91,3 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#CCCCCC',
-    textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 24,
-  },
-  formContainer: {
-    gap: 20,
-  },
-  skillsInput: {
-    minHeight: 100,
-    textAlignVertical: 'top',
-    paddingTop: 16,
-  },
-});

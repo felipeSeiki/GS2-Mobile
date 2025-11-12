@@ -19,7 +19,7 @@ const contractTypes = [
 export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
   const {
     title,
-    setTitle,
+    setTitle, 
     description,
     setDescription,
     requirements,

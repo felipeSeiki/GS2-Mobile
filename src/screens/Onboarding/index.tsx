@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../../components/Button';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
+import { styles } from './styles';
 
 type OnboardingScreenProps = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -47,41 +48,3 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    marginBottom: 60,
-  },
-  titleSection: {
-    alignItems: 'center',
-    marginBottom: 100,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    lineHeight: 40,
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#CCCCCC',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  buttonSection: {
-    width: '100%',
-    paddingHorizontal: 20,
-  },
-});

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Input } from '../../components/Input';
@@ -8,6 +8,7 @@ import { Header } from '../../components/Header';
 import { useLogin } from './hooks/useLogin';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
+import { styles } from './styles';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -89,45 +90,3 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-  },
-  iconContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#CCCCCC',
-    textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 24,
-  },
-  formContainer: {
-    gap: 20,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: -8,
-    marginBottom: 8,
-  },
-  forgotPasswordText: {
-    color: '#4A9EFF',
-    fontSize: 14,
-  },
-});
