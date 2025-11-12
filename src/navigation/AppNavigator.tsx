@@ -10,6 +10,7 @@ import { RegisterScreen } from '../screens/Register';
 import { JobsListScreen } from '../screens/JobsList';
 import { JobDetailsScreen } from '../screens/JobDetails';
 import { ApplicationsScreen } from '../screens/Applications';
+import { CreateJobScreen } from '../screens/CreateJob';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -31,6 +32,7 @@ export const AppNavigator: React.FC = () => {
         <Stack.Screen name="JobsList" component={JobsListScreen} />
         <Stack.Screen name="JobDetails" component={JobDetailsScreen} />
         <Stack.Screen name="Applications" component={ApplicationsScreen} />
+        <Stack.Screen name="CreateJob" component={CreateJobScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

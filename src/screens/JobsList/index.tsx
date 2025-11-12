@@ -23,7 +23,7 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
   } = useJobsList();
 
   const handleJobPress = (jobId: number) => {
-    navigation.navigate('JobDetails', { jobId });
+    navigation.navigate('JobDetails', { jobId: jobId.toString() });
   };
 
   const handleNavigateToApplications = () => {

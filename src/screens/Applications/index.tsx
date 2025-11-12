@@ -53,9 +53,9 @@ export const ApplicationsScreen: React.FC<ApplicationsScreenProps> = ({ navigati
       
       <View style={styles.content}>
         <FilterTabs
-          options={filterOptions}
-          selectedValue={selectedFilter}
-          onSelect={setSelectedFilter}
+          options={filterOptions.map(option => option.label)}
+          selectedOption={selectedFilter}
+          onSelectOption={setSelectedFilter}
         />
 
         <FlatList
