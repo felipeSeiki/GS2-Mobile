@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
+import { AuthService } from '../../../services';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
@@ -31,21 +32,28 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
     setLoading(true);
     
     try {
-      // Simulação de registro - aqui você integraria com seu service de candidatos
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
+      
+      const user = await AuthService.register({
+        name: fullName,
+        email,
+        password,
+        skills: skillsArray,
+        type: 'candidate'
+      });
       
       Alert.alert(
         "Sucesso!", 
-        "Conta criada com sucesso! Faça login para continuar.",
+        `Conta criada com sucesso! Bem-vindo(a), ${user.name}!`,
         [
           {
             text: "OK",
-            onPress: () => navigation.navigate('Login')
+            onPress: () => navigation.navigate('JobsList')
           }
         ]
       );
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível criar a conta. Tente novamente.");
+      Alert.alert("Erro", error instanceof Error ? error.message : "Não foi possível criar a conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

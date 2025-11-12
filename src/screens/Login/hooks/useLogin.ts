@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
+import { AuthService } from '../../../services';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -19,13 +20,20 @@ export const useLogin = (navigation: LoginScreenNavigationProp) => {
     setLoading(true);
     
     try {
-      // Simulação de login - aqui você integraria com seu service de autenticação
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const user = await AuthService.login({ email, password });
       
-      // Por enquanto, navega direto para a lista de vagas
-      navigation.navigate('JobsList');
+      Alert.alert(
+        "Login realizado!",
+        `Bem-vindo(a), ${user.name}!`,
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate('JobsList')
+          }
+        ]
+      );
     } catch (error) {
-      Alert.alert("Erro", "Email ou senha inválidos");
+      Alert.alert("Erro", error instanceof Error ? error.message : "Email ou senha inválidos");
     } finally {
       setLoading(false);
     }
