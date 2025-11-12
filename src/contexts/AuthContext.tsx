@@ -1,24 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService } from '../services/auth';
-import { patioService } from '../services/patioService';
-import { AuthContextData, LoginCredentials, RegisterData, RegisterDataPatio, RegisterDataWithRole, User, Users, Patio } from '../types/auth';
+import { AuthService, User, LoginCredentials, RegisterData } from '../services';
 
 // Chaves de armazenamento
 const STORAGE_KEYS = {
-  USER: '@MottuApp:user',
-  TOKEN: '@MottuApp:token',
-  PATIO: '@MottuApp:patio',
-  LAST_AUTH_RESPONSE: '@MottuApp:lastAuthResponse',
+  USER: '@JobApp:user',
+  TOKEN: '@JobApp:token',
+  LAST_AUTH_RESPONSE: '@JobApp:lastAuthResponse',
 };
+
+export interface AuthContextData {
+  user: User | null;
+  loading: boolean;
+  signIn: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  signOut: () => Promise<void>;
+  isAuthenticated: boolean;
+}
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<Users | null>(null);
-  const [patio, setPatio] = useState<Patio | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasRegisteredPatio, setHasRegisteredPatio] = useState(false);
 
   useEffect(() => {
     loadStoredData();
@@ -26,19 +30,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadStoredData = async () => {
     try {
-      const storedUser = await authService.getStoredUser();
+      const storedUser = await AsyncStorage.getItem(STORAGE_KEYS.USER);
+      const storedToken = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
       
-      if (storedUser) {
-        setUser(storedUser);
-        
-        // Se for admin, verifica a existência do pátio no backend
-        if (storedUser.role === 'ADMIN') {
-          const existingPatio = await patioService.getPatio();
-          if (existingPatio) {
-            setPatio(existingPatio);
-            setHasRegisteredPatio(true);
-          }
-        }
+      if (storedUser && storedToken) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
@@ -49,59 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (credentials: LoginCredentials) => {
     try {
-      const response = await authService.signIn(credentials);
+      const user = await AuthService.login(credentials);
 
-      // Salva a resposta bruta para debug local (não envia para servidor externo)
+      setUser(user);
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      
+      // Salva resposta para debug
       try {
-        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(response));
+        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(user));
       } catch (e) {
-        // não bloquear o fluxo se falhar ao gravar o debug
         console.warn('Não foi possível salvar last auth response:', e);
-      }
-
-  // Normaliza formatos diferentes de resposta que o backend pode retornar
-  const anyResp: any = response;
-      // Possíveis formatos:
-      // { user: {...}, token: '...' }
-      // { data: { user: {...}, token: '...'} }
-      // { token: '...', ...userFields }
-      const token = (anyResp && (anyResp.token || anyResp.accessToken)) || (anyResp?.data && (anyResp.data.token || anyResp.data.accessToken)) || null;
-
-      let userObj: any = null;
-      if (anyResp && anyResp.user) userObj = anyResp.user;
-      else if (anyResp?.data && anyResp.data.user) userObj = anyResp.data.user;
-      else if (anyResp?.data && typeof anyResp.data === 'object') {
-        // quando backend retorna diretamente o usuário em data
-        const maybeUser = anyResp.data;
-        if (maybeUser && (maybeUser.login || maybeUser.username || maybeUser.id)) userObj = maybeUser;
-      } else if (anyResp && typeof anyResp === 'object') {
-        const maybeUser = anyResp;
-        if (maybeUser && (maybeUser.login || maybeUser.username || maybeUser.id)) userObj = maybeUser;
-      }
-
-      // Persistência: grava somente quando tivermos valores
-      if (userObj) {
-        setUser(userObj);
-        await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userObj));
-      }
-
-      if (token) {
-        await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
-      }
-
-      // Carrega o pátio se o usuário for admin (prefere consulta ao backend)
-      const role = userObj?.role ?? userObj?.roles?.[0] ?? null;
-      if (role === 'ADMIN') {
-        try {
-          const existingPatio = await patioService.getPatio();
-          if (existingPatio) {
-            setPatio(existingPatio);
-            setHasRegisteredPatio(true);
-            await AsyncStorage.setItem(STORAGE_KEYS.PATIO, JSON.stringify(existingPatio));
-          }
-        } catch (e) {
-          console.warn('Erro ao carregar pátio após login:', e);
-        }
       }
     } catch (error) {
       console.error('Erro no signIn:', error);
@@ -109,33 +63,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (data: RegisterDataWithRole | RegisterData) => {
+  const register = async (data: RegisterData) => {
     try {
-      const response = await authService.register(data);
+      const user = await AuthService.register(data);
 
-      // Salva resposta bruta para debug
+      setUser(user);
+      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      
+      // Salva resposta para debug
       try {
-        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(response));
+        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(user));
       } catch (e) {
         console.warn('Não foi possível salvar last auth response (register):', e);
-      }
-
-      const anyResp2: any = response;
-      const token = (anyResp2 && (anyResp2.token || anyResp2.accessToken)) || (anyResp2?.data && (anyResp2.data.token || anyResp2.data.accessToken)) || null;
-      let userObj: any = null;
-      if (anyResp2 && anyResp2.user) userObj = anyResp2.user;
-      else if (anyResp2?.data && anyResp2.data.user) userObj = anyResp2.data.user;
-      else if (anyResp2?.data && typeof anyResp2.data === 'object') {
-        const maybeUser = anyResp2.data;
-        if (maybeUser && (maybeUser.login || maybeUser.username || maybeUser.id)) userObj = maybeUser;
-      }
-
-      if (userObj) {
-        setUser(userObj);
-        await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userObj));
-      }
-      if (token) {
-        await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
       }
     } catch (error) {
       console.error('Erro no register:', error);
@@ -145,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      await authService.signOut();
+      await AuthService.logout();
       setUser(null);
       await AsyncStorage.removeItem(STORAGE_KEYS.USER);
       await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN);
@@ -154,29 +93,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const registerPatio = async (data: RegisterDataPatio) => {
-    try {
-      const patio = await patioService.createPatio(data);
-      setPatio(patio);
-      setHasRegisteredPatio(true);
-    } catch (error) {
-      throw error;
-    }
-  };
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider 
       value={{ 
         user, 
-        patio,
         loading, 
         signIn, 
         register, 
-        registerPatio,
         signOut,
-        hasRegisteredPatio,
-        setPatio,
-        setHasRegisteredPatio 
+        isAuthenticated
       }}
     >
       {children}
