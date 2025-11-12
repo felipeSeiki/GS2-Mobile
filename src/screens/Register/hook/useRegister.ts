@@ -1,70 +1,66 @@
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
-import { useAuth } from "../../../contexts/AuthContext";
-import { useState, useEffect } from "react";
-import { RegisterScreenNavigationProp } from "../type/type";
+import { useState } from "react";
+import { Alert } from "react-native";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
 
-type RegisterRouteProp = RouteProp<RootStackParamList, 'Register'>;
+type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
-export const useRegister = () => {
-  const navigation = useNavigation<RegisterScreenNavigationProp>();
-  const { register } = useAuth();
+export const useRegister = (navigation: RegisterScreenNavigationProp) => {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [skills, setSkills] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    user: "",
-    password: "",
-  });
-
-  const route = useRoute<RegisterRouteProp>();
-
-  useEffect(() => {
-    // se vier prefill por params (role, patioId), podemos pré-configurar campos
-    if (route?.params) {
-      const params: any = route.params as any;
-      if (params.prefillUser) {
-        setFormData((prev) => ({ ...prev, user: params.prefillUser }));
-      }
+  const handleRegister = async () => {
+    if (!fullName || !email || !password || !skills) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos");
+      return;
     }
-  }, [route?.params]);
 
-  const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+    if (password.length < 6) {
+      Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
 
-  const handleSubmit = async () => {
+    if (!email.includes('@')) {
+      Alert.alert("Erro", "Por favor, insira um email válido");
+      return;
+    }
+
+    setLoading(true);
+    
     try {
-      if (!formData.user || !formData.password) {
-        alert("Por favor, preencha usuário e senha");
-        return;
-      }
-
-      if (formData.password.length < 6) {
-        alert("A senha deve ter pelo menos 6 caracteres");
-        return;
-      }
-
-      // Se a rota enviou role/patioId, encaminhar para o serviço
-      const params: any = (route && (route.params as any)) || {};
-      await register({
-        user: formData.user,
-        password: formData.password,
-        role: params.role,
-        patioId: params.patioId
-      });
+      // Simulação de registro - aqui você integraria com seu service de candidatos
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      Alert.alert(
+        "Sucesso!", 
+        "Conta criada com sucesso! Faça login para continuar.",
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate('Login')
+          }
+        ]
+      );
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Erro desconhecido";
-      alert("Erro ao realizar cadastro: " + errorMessage);
+      Alert.alert("Erro", "Não foi possível criar a conta. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return {
-    formData,
-    handleChange,
-    handleSubmit,
-    navigation,
+    fullName,
+    setFullName,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    skills,
+    setSkills,
+    loading,
+    handleRegister,
   };
 };
