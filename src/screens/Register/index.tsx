@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
+import { UserTypeSelector } from './components/UserTypeSelector';
 import { useRegister } from './hook/useRegister';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -13,6 +14,8 @@ type RegisterScreenProps = NativeStackScreenProps<RootStackParamList, 'Register'
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   const {
+    userType,
+    setUserType,
     fullName,
     setFullName,
     email,
@@ -21,6 +24,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     setPassword,
     skills,
     setSkills,
+    companyName,
+    setCompanyName,
+    companyDescription,
+    setCompanyDescription,
     loading,
     handleRegister,
   } = useRegister(navigation);
@@ -36,18 +43,35 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.subtitle}>
-            Crie sua conta para que nossa IA comece a{'\n'}
-            encontrar as melhores vagas para você.
+            {userType === 'candidate' 
+              ? 'Crie sua conta para que nossa IA comece a\nencontrar as melhores vagas para você.'
+              : 'Crie sua conta empresarial para publicar\nvagas e encontrar os melhores candidatos.'
+            }
           </Text>
 
+          <UserTypeSelector 
+            userType={userType}
+            onUserTypeChange={setUserType}
+          />
+
           <View style={styles.formContainer}>
-            <Input
-              label="Nome Completo"
-              placeholder="Seu nome completo"
-              value={fullName}
-              onChangeText={setFullName}
-              icon="person-outline"
-            />
+            {userType === 'candidate' ? (
+              <Input
+                label="Nome Completo"
+                placeholder="Seu nome completo"
+                value={fullName}
+                onChangeText={setFullName}
+                icon="person-outline"
+              />
+            ) : (
+              <Input
+                label="Nome da Empresa"
+                placeholder="Nome da sua empresa"
+                value={companyName}
+                onChangeText={setCompanyName}
+                icon="business-outline"
+              />
+            )}
 
             <Input
               label="E-mail"
@@ -68,18 +92,30 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
               icon="lock-closed-outline"
             />
 
-            <Input
-              label="Habilidades Principais"
-              placeholder="Descreva brevemente suas principais habilidades e competências: Ex: JavaScript, React, Node.js, Liderança de equipe..."
-              value={skills}
-              onChangeText={setSkills}
-              multiline
-              numberOfLines={4}
-              style={styles.skillsInput}
-            />
+            {userType === 'candidate' ? (
+              <Input
+                label="Habilidades Principais"
+                placeholder="Descreva brevemente suas principais habilidades e competências: Ex: JavaScript, React, Node.js, Liderança de equipe..."
+                value={skills}
+                onChangeText={setSkills}
+                multiline
+                numberOfLines={4}
+                style={styles.skillsInput}
+              />
+            ) : (
+              <Input
+                label="Descrição da Empresa"
+                placeholder="Descreva sua empresa, setor de atuação, valores e o que vocês fazem..."
+                value={companyDescription}
+                onChangeText={setCompanyDescription}
+                multiline
+                numberOfLines={4}
+                style={styles.skillsInput}
+              />
+            )}
 
             <Button
-              title="Criar Conta"
+              title={userType === 'candidate' ? "Criar Conta" : "Criar Conta Empresarial"}
               onPress={handleRegister}
               loading={loading}
               fullWidth

@@ -1,34 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Job } from '../types/jobs';
 
-interface Job {
+interface JobCardJob extends Omit<Job, 'id'> {
   id: number;
-  title: string;
-  company: string;
-  location: string;
-  workType: 'remote' | 'hybrid' | 'onsite';
+  workType?: 'remote' | 'hybrid' | 'onsite';
   salaryMin?: number;
   salaryMax?: number;
-  currency: string;
-  skills: string[];
-  postedAt: string;
+  currency?: string;
 }
 
 interface JobCardProps {
-  job: Job;
+  job: JobCardJob;
   onPress: () => void;
 }
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
-  const formatSalary = (min: number, max: number, currency: string = 'BRL') => {
-    const formatter = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-    });
-    return `${formatter.format(min)} - ${formatter.format(max)}`;
-  };
 
   const getWorkTypeIcon = (workType: string) => {
     switch (workType) {
@@ -78,27 +66,29 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
       </View>
 
       <View style={styles.details}>
-        <View style={styles.detailItem}>
-          <Ionicons 
-            name={getWorkTypeIcon(job.workType)} 
-            size={16} 
-            color="#FFFFFF" 
-          />
-          <Text style={styles.detailText}>
-            {getWorkTypeLabel(job.workType)}
-          </Text>
-        </View>
+        {job.workType && (
+          <View style={styles.detailItem}>
+            <Ionicons 
+              name={getWorkTypeIcon(job.workType)} 
+              size={16} 
+              color="#FFFFFF" 
+            />
+            <Text style={styles.detailText}>
+              {getWorkTypeLabel(job.workType)}
+            </Text>
+          </View>
+        )}
         
         <View style={styles.detailItem}>
           <Ionicons name="location-outline" size={16} color="#FFFFFF" />
           <Text style={styles.detailText}>{job.location}</Text>
         </View>
         
-        {job.salaryMin && job.salaryMax && (
+        {job.salary && (
           <View style={styles.detailItem}>
             <Ionicons name="cash-outline" size={16} color="#FFFFFF" />
             <Text style={styles.detailText}>
-              {formatSalary(job.salaryMin, job.salaryMax, job.currency)}
+              {job.salary}
             </Text>
           </View>
         )}
@@ -106,13 +96,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
 
       <View style={styles.footer}>
         <View style={styles.skillsContainer}>
-          {job.skills.slice(0, 3).map((skill: string, index: number) => (
+          {job.requirements && job.requirements.slice(0, 3).map((requirement: string, index: number) => (
             <View key={index} style={styles.skillTag}>
-              <Text style={styles.skillText}>{skill}</Text>
+              <Text style={styles.skillText}>{requirement}</Text>
             </View>
           ))}
-          {job.skills.length > 3 && (
-            <Text style={styles.moreSkills}>+{job.skills.length - 3}</Text>
+          {job.requirements && job.requirements.length > 3 && (
+            <Text style={styles.moreSkills}>+{job.requirements.length - 3}</Text>
           )}
         </View>
         

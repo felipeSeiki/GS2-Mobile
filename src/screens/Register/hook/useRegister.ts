@@ -5,17 +5,22 @@ import { RootStackParamList } from '../../../types/navigation';
 import { AuthService } from '../../../services';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
+type UserType = 'candidate' | 'company';
 
 export const useRegister = (navigation: RegisterScreenNavigationProp) => {
+  const [userType, setUserType] = useState<UserType>('candidate');
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [skills, setSkills] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyDescription, setCompanyDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!fullName || !email || !password || !skills) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos");
+    // Validações comuns
+    if (!email || !password) {
+      Alert.alert("Erro", "Email e senha são obrigatórios");
       return;
     }
 
@@ -29,18 +34,44 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
       return;
     }
 
+    // Validações específicas por tipo
+    if (userType === 'candidate') {
+      if (!fullName || !skills) {
+        Alert.alert("Erro", "Nome completo e habilidades são obrigatórios para candidatos");
+        return;
+      }
+    } else {
+      if (!companyName || !companyDescription) {
+        Alert.alert("Erro", "Nome da empresa e descrição são obrigatórios");
+        return;
+      }
+    }
+
     setLoading(true);
     
     try {
-      const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
-      
-      const user = await AuthService.register({
-        name: fullName,
+      let userData: any = {
         email,
         password,
-        skills: skillsArray,
-        type: 'candidate'
-      });
+        type: userType
+      };
+
+      if (userType === 'candidate') {
+        const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
+        userData = {
+          ...userData,
+          name: fullName,
+          skills: skillsArray
+        };
+      } else {
+        userData = {
+          ...userData,
+          name: companyName,
+          companyDescription
+        };
+      }
+      
+      const user = await AuthService.register(userData);
       
       Alert.alert(
         "Sucesso!", 
@@ -60,6 +91,8 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
   };
 
   return {
+    userType,
+    setUserType,
     fullName,
     setFullName,
     email,
@@ -68,6 +101,10 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
     setPassword,
     skills,
     setSkills,
+    companyName,
+    setCompanyName,
+    companyDescription,
+    setCompanyDescription,
     loading,
     handleRegister,
   };

@@ -5,6 +5,7 @@ export interface User {
   type: 'candidate' | 'company';
   skills?: string[];
   company?: string;
+  companyDescription?: string;
 }
 
 export interface LoginCredentials {
@@ -19,6 +20,7 @@ export interface RegisterData {
   skills?: string[];
   type: 'candidate' | 'company';
   company?: string;
+  companyDescription?: string;
 }
 
 export class AuthService {
@@ -33,10 +35,11 @@ export class AuthService {
     },
     {
       id: '2',
-      name: 'Maria Santos',
+      name: 'TechCorp',
       email: 'maria@empresa.com',
       type: 'company',
       company: 'TechCorp',
+      companyDescription: 'Empresa líder em soluções tecnológicas inovadoras, focada em transformação digital.',
     },
   ];
 
@@ -71,7 +74,8 @@ export class AuthService {
       email: data.email,
       type: data.type,
       skills: data.skills,
-      company: data.company,
+      company: data.type === 'company' ? data.name : data.company,
+      companyDescription: data.companyDescription,
     };
 
     this.users.push(newUser);
