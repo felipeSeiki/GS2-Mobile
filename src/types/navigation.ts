@@ -19,6 +19,6 @@ export type RootStackParamList = {
   Register: undefined;
   CompanyRegister: undefined;
   JobsList: undefined;
-  JobDetails: { jobId: number };
+  JobDetails: { jobId: string };
   Applications: undefined;
 }; 
