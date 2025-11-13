@@ -133,7 +133,7 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
               <Ionicons 
                 name={showContractDropdown ? "chevron-up" : "chevron-down"} 
                 size={20} 
-                color="#CCCCCC" 
+                color="#A0A0A0" 
               />
             </TouchableOpacity>
             

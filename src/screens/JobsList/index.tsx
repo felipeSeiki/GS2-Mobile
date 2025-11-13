@@ -58,11 +58,11 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
-          <Ionicons name="search" size={20} color="#CCCCCC" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color="#A0A0A0" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar por cargo ou empresa"
-            placeholderTextColor="#CCCCCC"
+            placeholderTextColor="#A0A0A0"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />

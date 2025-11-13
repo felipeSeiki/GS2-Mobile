@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 120,
   },
   profileSection: {
     alignItems: 'center',

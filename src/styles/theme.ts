@@ -4,6 +4,7 @@ export default {
       secondary: '#6C757D',
       background: '#000',
       text: '#212529',
+      placeholder: '#A0A0A0',
       error: '#DC3545',
       success: '#28A745',
       warning: '#FFC107',

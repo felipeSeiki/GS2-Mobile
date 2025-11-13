@@ -39,7 +39,7 @@ export const Input = forwardRef<TextInput, InputProps>(({
             error && styles.inputError,
             style
           ]}
-          placeholderTextColor={theme.colors.text}
+          placeholderTextColor={theme.colors.placeholder}
           {...props}
         />
       </View>
