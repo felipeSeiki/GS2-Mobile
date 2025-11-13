@@ -23,6 +23,8 @@ export const mockJobs: Job[] = [
       'Auxílio educação'
     ],
     postedAt: new Date('2024-01-15'),
+    applicationsCount: 5,
+    isActive: true,
   },
   {
     id: '2',
@@ -46,6 +48,8 @@ export const mockJobs: Job[] = [
       'Licença Adobe'
     ],
     postedAt: new Date('2024-01-14'),
+    applicationsCount: 3,
+    isActive: true,
   },
   {
     id: '3',
@@ -69,6 +73,8 @@ export const mockJobs: Job[] = [
       'Cursos de atualização'
     ],
     postedAt: new Date('2024-01-13'),
+    applicationsCount: 7,
+    isActive: true,
   },
   {
     id: '4',
@@ -92,6 +98,8 @@ export const mockJobs: Job[] = [
       'Equipamentos fornecidos'
     ],
     postedAt: new Date('2024-01-12'),
+    applicationsCount: 12,
+    isActive: true,
   },
   {
     id: '5',
@@ -115,5 +123,7 @@ export const mockJobs: Job[] = [
       'Participação nos lucros'
     ],
     postedAt: new Date('2024-01-11'),
+    applicationsCount: 8,
+    isActive: true,
   },
 ];
