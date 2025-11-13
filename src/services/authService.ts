@@ -7,12 +7,11 @@ import {
   JobRegisterData,
   UserType 
 } from '../types/jobAuth';
-import { mockJobCandidates, mockJobCompanies } from '../mocks/jobUsers.mock';
+import { UserService, CandidateService, CompanyService } from './userServices';
 
 // Storage keys
 const STORAGE_KEYS = {
   CURRENT_USER: '@auth:current_user',
-  USERS_DATA: '@auth:users_data',
 } as const;
 
 // Interfaces para compatibilidade e novos recursos
@@ -25,18 +24,13 @@ export type User = JobUser;
 // Função utilitária para delay (simular API)
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Função para combinar dados de mock
-const getAllMockUsers = (): JobUser[] => {
-  return [...mockJobCandidates, ...mockJobCompanies];
-};
-
 /**
  * AuthService - Sistema unificado de autenticação
  * Implementa todas as funcionalidades de autenticação seguindo boas práticas
+ * Agora usando AsyncStorage através dos serviços de usuário
  */
 export class AuthService {
   private static currentUser: User | null = null;
-  private static users: JobUser[] = getAllMockUsers();
 
   /**
    * Inicializa o serviço carregando dados do AsyncStorage
@@ -58,7 +52,7 @@ export class AuthService {
   static async login(credentials: LoginCredentials): Promise<User> {
     await delay(800); // Simula delay da API
 
-    const user = this.users.find(u => u.email === credentials.email);
+    const user = await UserService.getUserByEmail(credentials.email);
     
     if (!user) {
       throw new Error('E-mail não encontrado');
@@ -92,18 +86,38 @@ export class AuthService {
     }
 
     // Verifica se email já existe
-    const existingUser = this.users.find(u => u.email === data.email);
+    const existingUser = await UserService.getUserByEmail(data.email);
     if (existingUser) {
       throw new Error('Este e-mail já está cadastrado');
     }
 
-    // Cria novo usuário baseado no tipo
-    const newUser = this.createUserFromRegisterData(data);
+    // Cria novo usuário baseado no tipo usando os serviços apropriados
+    let newUser: JobUser;
+    if (data.userType === 'candidate') {
+      newUser = await CandidateService.createCandidate({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        location: data.location,
+        skills: data.skills || [],
+        experience: data.experience,
+      });
+    } else {
+      newUser = await CompanyService.createCompany({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        description: data.description || '',
+        industry: data.industry || '',
+        location: data.location || '',
+        website: data.website,
+        size: data.size || 'small',
+        foundedYear: data.foundedYear,
+      });
+    }
     
-    // Adiciona à lista de usuários
-    this.users.push(newUser);
     this.currentUser = newUser;
-    
     await this.saveUserToStorage(newUser);
     
     return newUser;
@@ -119,17 +133,17 @@ export class AuthService {
 
     await delay(600); // Simula delay da API
 
-    // Atualiza o usuário atual preservando o tipo
-    const updatedUser: JobUser = {
-      ...this.currentUser,
-      ...updates,
-      updatedAt: new Date(),
-    } as JobUser;
-    
-    // Atualiza na lista de usuários
-    const userIndex = this.users.findIndex(u => u.id === this.currentUser!.id);
-    if (userIndex !== -1) {
-      this.users[userIndex] = updatedUser;
+    let updatedUser: JobUser | null = null;
+
+    // Atualiza usando o serviço apropriado baseado no tipo do usuário
+    if (this.currentUser.userType === 'candidate') {
+      updatedUser = await CandidateService.updateCandidate(this.currentUser.id, updates);
+    } else if (this.currentUser.userType === 'company') {
+      updatedUser = await CompanyService.updateCompany(this.currentUser.id, updates);
+    }
+
+    if (!updatedUser) {
+      throw new Error('Erro ao atualizar perfil');
     }
 
     this.currentUser = updatedUser;
@@ -148,30 +162,32 @@ export class AuthService {
   }): Promise<JobCandidate[]> {
     await delay(500);
 
-    const candidates = this.users.filter(
-      (user): user is JobCandidate => user.userType === 'candidate'
-    );
+    let candidates = await CandidateService.getAllCandidates();
 
     if (!filters) return candidates;
 
-    return candidates.filter(candidate => {
-      if (filters.skills && filters.skills.length > 0) {
-        const hasSkill = filters.skills.some(skill => 
-          candidate.skills.some(userSkill => 
-            userSkill.toLowerCase().includes(skill.toLowerCase())
-          )
-        );
-        if (!hasSkill) return false;
-      }
+    // Apply skills filter
+    if (filters.skills && filters.skills.length > 0) {
+      candidates = await CandidateService.searchCandidatesBySkills(filters.skills);
+    }
 
-      if (filters.location) {
-        if (!candidate.location?.toLowerCase().includes(filters.location.toLowerCase())) {
-          return false;
-        }
-      }
+    // Apply location filter
+    if (filters.location) {
+      candidates = candidates.filter(candidate => 
+        candidate.location && 
+        candidate.location.toLowerCase().includes(filters.location!.toLowerCase())
+      );
+    }
 
-      return true;
-    });
+    // Apply experience filter
+    if (filters.experience) {
+      candidates = candidates.filter(candidate => 
+        candidate.experience &&
+        candidate.experience.toLowerCase().includes(filters.experience!.toLowerCase())
+      );
+    }
+
+    return candidates;
   }
 
   /**
@@ -184,33 +200,36 @@ export class AuthService {
   }): Promise<JobCompany[]> {
     await delay(500);
 
-    const companies = this.users.filter(
-      (user): user is JobCompany => user.userType === 'company'
-    );
+    let companies = await CompanyService.getAllCompanies();
 
     if (!filters) return companies;
 
-    return companies.filter(company => {
-      if (filters.industry) {
-        if (!company.industry.toLowerCase().includes(filters.industry.toLowerCase())) {
-          return false;
-        }
-      }
+    // Apply industry filter
+    if (filters.industry) {
+      companies = await CompanyService.getCompaniesByIndustry(filters.industry);
+    }
 
-      if (filters.location) {
-        if (!company.location.toLowerCase().includes(filters.location.toLowerCase())) {
-          return false;
-        }
+    // Apply location filter
+    if (filters.location) {
+      if (companies.length === await CompanyService.getAllCompanies().then(c => c.length)) {
+        // If we haven't filtered by industry, filter by location from all companies
+        companies = await CompanyService.getCompaniesByLocation(filters.location);
+      } else {
+        // Filter the already filtered results
+        companies = companies.filter(company => 
+          company.location.toLowerCase().includes(filters.location!.toLowerCase())
+        );
       }
+    }
 
-      if (filters.size) {
-        if (company.size !== filters.size) {
-          return false;
-        }
-      }
+    // Apply size filter
+    if (filters.size) {
+      companies = companies.filter(company => 
+        company.size === filters.size as JobCompany['size']
+      );
+    }
 
-      return true;
-    });
+    return companies;
   }
 
   /**
@@ -227,10 +246,8 @@ export class AuthService {
    */
   static async clearStorage(): Promise<void> {
     this.currentUser = null;
-    await AsyncStorage.multiRemove([
-      STORAGE_KEYS.CURRENT_USER,
-      STORAGE_KEYS.USERS_DATA,
-    ]);
+    await AsyncStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    await UserService.clearAllUsers();
   }
 
   /**
@@ -250,8 +267,8 @@ export class AuthService {
   /**
    * Obtém todos os usuários (para desenvolvimento/debug)
    */
-  static getAllUsers(): JobUser[] {
-    return this.users;
+  static async getAllUsers(): Promise<JobUser[]> {
+    return await UserService.getAllUsers();
   }
 
   // Métodos privados/utilitários
@@ -267,39 +284,5 @@ export class AuthService {
     }
   }
 
-  /**
-   * Cria usuário a partir dos dados de registro
-   */
-  private static createUserFromRegisterData(data: RegisterData): JobUser {
-    const baseUser = {
-      id: Date.now().toString(),
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
 
-    if (data.userType === 'candidate') {
-      return {
-        ...baseUser,
-        userType: 'candidate',
-        skills: data.skills || [],
-        phone: data.phone,
-        location: data.location,
-        experience: data.experience,
-      } as JobCandidate;
-    } else {
-      return {
-        ...baseUser,
-        userType: 'company',
-        description: data.description || '',
-        industry: data.industry || '',
-        location: data.location || '',
-        website: data.website,
-        size: data.size || 'startup',
-        foundedYear: data.foundedYear,
-      } as JobCompany;
-    }
-  }
 }
