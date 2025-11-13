@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { JobCard } from '../../components/JobCard';
 import { FilterTabs } from '../../components/FilterTabs';
+import { BottomTabBar } from '../../components/BottomTabBar';
 import { useJobsList } from './hooks/useJobsList';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -27,13 +28,7 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
     navigation.navigate('JobDetails', { jobId: jobId.toString() });
   };
 
-  const handleNavigateToApplications = () => {
-    navigation.navigate('Applications');
-  };
 
-  const handleNavigateToProfile = () => {
-    navigation.navigate('EditProfile');
-  };
 
   const renderJobCard = ({ item }: { item: any }) => (
     <JobCard 
@@ -55,7 +50,6 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
         
         <TouchableOpacity 
           style={styles.notificationButton}
-          onPress={handleNavigateToApplications}
         >
           <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
         </TouchableOpacity>
@@ -94,28 +88,7 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
       />
 
       {/* Bottom Tab Bar */}
-      <View style={styles.bottomTabBar}>
-        <TouchableOpacity style={[styles.tabItem, styles.activeTab]}>
-          <Ionicons name="briefcase" size={24} color="#4A9EFF" />
-          <Text style={[styles.tabLabel, styles.activeTabLabel]}>Vagas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={handleNavigateToApplications}
-        >
-          <Ionicons name="document-text-outline" size={24} color="#CCCCCC" />
-          <Text style={styles.tabLabel}>Candidaturas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.tabItem}
-          onPress={handleNavigateToProfile}
-        >
-          <Ionicons name="person-outline" size={24} color="#CCCCCC" />
-          <Text style={styles.tabLabel}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomTabBar navigation={navigation} activeTab="jobs" />
     </SafeAreaView>
   );
 };

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ApplicationCard } from '../../components/ApplicationCard';
+import { BottomTabBar } from '../../components/BottomTabBar';
 import { useApplications } from './hooks/useApplications';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -50,31 +51,7 @@ export const ApplicationsScreen: React.FC<ApplicationsScreenProps> = ({ navigati
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('JobsList')}
-        >
-          <Ionicons name="briefcase-outline" size={24} color="#666666" />
-          <Text style={styles.navLabel}>Vagas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.navItem, styles.navItemActive]}
-          onPress={() => {}} 
-        >
-          <Ionicons name="document-text" size={24} color="#4A9EFF" />
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Candidaturas</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('EditProfile')}
-        >
-          <Ionicons name="person-outline" size={24} color="#666666" />
-          <Text style={styles.navLabel}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomTabBar navigation={navigation} activeTab="applications" />
     </SafeAreaView>
   );
 };

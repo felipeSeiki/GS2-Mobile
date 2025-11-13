@@ -39,27 +39,4 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
   },
-  bottomNavigation: {
-    flexDirection: 'row',
-    backgroundColor: '#2A2A2A',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#3A3A3A',
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  navItemActive: {
-  },
-  navLabel: {
-    fontSize: 12,
-    color: '#666666',
-    marginTop: 4,
-  },
-  navLabelActive: {
-    color: '#4A9EFF',
-  },
 });

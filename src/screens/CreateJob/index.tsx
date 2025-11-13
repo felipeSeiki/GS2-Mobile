@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../../components/Header';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
+import { BottomTabBar } from '../../components/BottomTabBar';
 import { useCreateJob } from './hooks/useCreateJob';
 import { styles } from './styles';
 import { CreateJobScreenProps } from './type/type';
@@ -172,6 +173,9 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
           size="large"
         />
       </View>
+
+      {/* Bottom Tab Bar */}
+      <BottomTabBar navigation={navigation} activeTab="applications" />
     </SafeAreaView>
   );
 };

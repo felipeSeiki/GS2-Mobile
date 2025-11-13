@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { DangerButton } from '../../components/DangerButton';
+import { BottomTabBar } from '../../components/BottomTabBar';
 import { Header } from '../../components/Header';
 import { useEditProfile } from './hooks/useEditProfile';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -182,6 +183,9 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
           </View>
         </View>
       </ScrollView>
+
+      {/* Bottom Tab Bar */}
+      <BottomTabBar navigation={navigation} activeTab="profile" />
     </SafeAreaView>
   );
 };

@@ -58,34 +58,4 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
     paddingTop: 8,
   },
-  bottomTabBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
-    paddingTop: 16,
-    paddingBottom: 34,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#2A2A2A',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  activeTab: {
-    // Estilo para aba ativa
-  },
-  tabLabel: {
-    fontSize: 12,
-    color: '#CCCCCC',
-    marginTop: 4,
-  },
-  activeTabLabel: {
-    color: '#4A9EFF',
-    fontWeight: '600',
-  },
 });
