@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Job } from '../../../types';
 import { JobService, ApplicationService } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
-
-const categories = ['Todas', 'Desenvolvimento', 'Design', 'Marketing', 'Dados'];
+import { ALL_CATEGORIES } from '../../../constants/categories';
 
 export const useJobsList = () => {
   const { user } = useAuth();
@@ -34,13 +33,22 @@ export const useJobsList = () => {
     loadUserApplications();
   }, [user]);
 
-  // Carregar vagas iniciais
+  // Carregar vagas baseado no tipo de usuário
   useEffect(() => {
     const loadJobs = async () => {
       setLoading(true);
       try {
-        const allJobs = await JobService.getAllJobs();
-        setJobs(allJobs);
+        let jobsToLoad: Job[] = [];
+
+        if (user?.userType === 'company') {
+          // Empresas veem apenas suas próprias vagas
+          jobsToLoad = await JobService.getJobsByCompany(user.name);
+        } else {
+          // Candidatos e visitantes veem todas as vagas disponíveis
+          jobsToLoad = await JobService.getAvailableJobsForCandidate(userApplications);
+        }
+
+        setJobs(jobsToLoad);
       } catch (error) {
         console.error('Erro ao carregar vagas:', error);
       } finally {
@@ -48,42 +56,61 @@ export const useJobsList = () => {
       }
     };
 
-    loadJobs();
-  }, []);
+    if (user) {
+      loadJobs();
+    }
+  }, [user, userApplications]);
 
-  // Filtrar vagas baseado na busca, categoria e candidaturas
+  // Filtrar vagas baseado na busca e categoria
   const filteredJobs = useMemo(() => {
     let filtered = jobs;
-
-    // Para candidatos: remover vagas já aplicadas
-    if (user?.userType === 'candidate') {
-      filtered = filtered.filter((job: Job) => !userApplications.includes(job.id));
-    }
 
     // Filtrar por categoria
     if (selectedCategory !== 'Todas') {
       filtered = filtered.filter((job: Job) => job.category === selectedCategory);
     }
 
-    // Filtrar por busca
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((job: Job) => 
-        job.title.toLowerCase().includes(query) ||
-        job.company.toLowerCase().includes(query) ||
-        job.location.toLowerCase().includes(query)
-      );
+    // Filtrar por busca (não aplicamos filtro de busca aqui porque já foi aplicado no handleSearch)
+    if (!searchQuery.trim()) {
+      // Se não há busca, aplicamos filtros normais
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter((job: Job) => 
+          job.title.toLowerCase().includes(query) ||
+          job.company.toLowerCase().includes(query) ||
+          job.location.toLowerCase().includes(query)
+        );
+      }
     }
 
     return filtered;
-  }, [jobs, selectedCategory, searchQuery, userApplications, user]);
+  }, [jobs, selectedCategory, searchQuery]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
       setLoading(true);
       try {
-        const searchResults = await JobService.searchJobs(query);
+        let searchResults: Job[] = [];
+        
+        if (user?.userType === 'company') {
+          // Para empresa: buscar apenas nas suas vagas
+          const companyJobs = await JobService.getJobsByCompany(user.name);
+          const queryLower = query.toLowerCase();
+          searchResults = companyJobs.filter(job => 
+            job.title.toLowerCase().includes(queryLower) ||
+            job.location.toLowerCase().includes(queryLower) ||
+            job.category.toLowerCase().includes(queryLower)
+          );
+        } else {
+          // Para candidatos: buscar em todas as vagas disponíveis
+          searchResults = await JobService.searchJobs(query);
+          // Remover vagas já aplicadas para candidatos
+          if (user?.userType === 'candidate') {
+            searchResults = searchResults.filter(job => !userApplications.includes(job.id));
+          }
+        }
+        
         setJobs(searchResults);
       } catch (error) {
         console.error('Erro na busca:', error);
@@ -91,9 +118,23 @@ export const useJobsList = () => {
         setLoading(false);
       }
     } else {
-      // Recarregar todas as vagas se a busca estiver vazia
-      const allJobs = await JobService.getAllJobs();
-      setJobs(allJobs);
+      // Recarregar vagas baseado no perfil quando busca estiver vazia
+      setLoading(true);
+      try {
+        let jobsToLoad: Job[] = [];
+
+        if (user?.userType === 'company') {
+          jobsToLoad = await JobService.getJobsByCompany(user.name);
+        } else {
+          jobsToLoad = await JobService.getAvailableJobsForCandidate(userApplications);
+        }
+
+        setJobs(jobsToLoad);
+      } catch (error) {
+        console.error('Erro ao recarregar vagas:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -105,7 +146,7 @@ export const useJobsList = () => {
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
-    categories,
+    categories: ALL_CATEGORIES,
     userApplications,
   };
 };

@@ -9,6 +9,7 @@ import { BottomTabBar } from '../../components/BottomTabBar';
 import { useCreateJob } from './hooks/useCreateJob';
 import { styles } from './styles';
 import { CreateJobScreenProps } from './type/type';
+import { CATEGORIES } from '../../constants/categories';
 
 const contractTypes = [
   { label: 'CLT', value: 'full-time' },
@@ -37,6 +38,8 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
     handleCreateJob,
     showContractDropdown,
     setShowContractDropdown,
+    showCategoryDropdown,
+    setShowCategoryDropdown,
   } = useCreateJob(navigation);
 
   return (
@@ -101,12 +104,41 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
           {/* Categoria */}
           <View style={styles.section}>
             <Text style={styles.label}>Categoria</Text>
-            <Input
-              placeholder="Ex: Desenvolvimento, Design, Marketing"
-              value={category}
-              onChangeText={setCategory}
-              style={styles.input}
-            />
+            <TouchableOpacity 
+              style={styles.dropdown}
+              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <Text style={styles.dropdownText}>
+                {category || 'Selecione uma categoria'}
+              </Text>
+              <Ionicons 
+                name={showCategoryDropdown ? "chevron-up" : "chevron-down"} 
+                size={20} 
+                color="#A0A0A0" 
+              />
+            </TouchableOpacity>
+
+            {showCategoryDropdown && (
+              <View style={styles.dropdownOptions}>
+                {CATEGORIES.map((cat) => (
+                  <TouchableOpacity
+                    key={cat}
+                    style={styles.dropdownOption}
+                    onPress={() => {
+                      setCategory(cat);
+                      setShowCategoryDropdown(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.dropdownOptionText,
+                      category === cat && styles.selectedOption
+                    ]}>
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
 
           {/* Salário */}

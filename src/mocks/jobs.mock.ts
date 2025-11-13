@@ -16,12 +16,6 @@ export const mockJobs: Job[] = [
       'Experiência com APIs REST',
       'Git e versionamento de código'
     ],
-    benefits: [
-      'Vale refeição',
-      'Plano de saúde',
-      'Home office flexível',
-      'Auxílio educação'
-    ],
     postedAt: new Date('2024-01-15'),
     applicationsCount: 5,
     isActive: true,
@@ -40,12 +34,6 @@ export const mockJobs: Job[] = [
       'Portfolio sólido',
       'Conhecimento em Design System',
       'Experiência em pesquisa com usuários'
-    ],
-    benefits: [
-      'Vale refeição',
-      'Plano de saúde',
-      'Ambiente criativo',
-      'Licença Adobe'
     ],
     postedAt: new Date('2024-01-14'),
     applicationsCount: 3,
@@ -66,12 +54,6 @@ export const mockJobs: Job[] = [
       'Gestão de redes sociais',
       'Excel avançado'
     ],
-    benefits: [
-      'Vale refeição',
-      'Plano de saúde',
-      'Comissão por performance',
-      'Cursos de atualização'
-    ],
     postedAt: new Date('2024-01-13'),
     applicationsCount: 7,
     isActive: true,
@@ -91,12 +73,6 @@ export const mockJobs: Job[] = [
       'Docker e Kubernetes',
       'Arquitetura de microsserviços'
     ],
-    benefits: [
-      'Trabalho 100% remoto',
-      'Plano de saúde premium',
-      'Stock options',
-      'Equipamentos fornecidos'
-    ],
     postedAt: new Date('2024-01-12'),
     applicationsCount: 12,
     isActive: true,
@@ -115,12 +91,6 @@ export const mockJobs: Job[] = [
       'Power BI ou Tableau',
       'Estatística aplicada',
       'Machine Learning básico'
-    ],
-    benefits: [
-      'Vale refeição',
-      'Plano de saúde',
-      'Auxílio educação',
-      'Participação nos lucros'
     ],
     postedAt: new Date('2024-01-11'),
     applicationsCount: 8,

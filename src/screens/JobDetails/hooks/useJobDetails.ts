@@ -85,12 +85,26 @@ export const useJobDetails = (jobId: string) => {
     }
   };
 
+  // Verificar se o usuário logado é a empresa dona da vaga
+  const isOwnerCompany = user?.userType === 'company' && job?.company === user.name;
+
+  const handleEdit = () => {
+    // TODO: Implementar navegação para tela de edição
+    Alert.alert(
+      'Editar Vaga',
+      'Funcionalidade de edição será implementada em breve.',
+      [{ text: 'OK', style: 'default' }]
+    );
+  };
+
   return {
     job,
     loading,
     handleApply,
+    handleEdit,
     hasApplied,
     checkingApplication,
     isCandidate: user?.userType === 'candidate',
+    isOwnerCompany,
   };
 };

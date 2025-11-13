@@ -74,6 +74,9 @@ export const styles = StyleSheet.create({
     backgroundColor: '#4A4A4A',
     opacity: 0.7,
   },
+  editButton: {
+    backgroundColor: '#FF9500',
+  },
   jobLocation: {
     fontSize: 14,
     color: '#999999',

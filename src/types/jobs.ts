@@ -2,13 +2,13 @@ export interface Job {
   id: string;
   title: string;
   company: string;
+  companyId?: string;
   location: string;
   category: string;
   type: 'full-time' | 'part-time' | 'contract' | 'internship';
   salary?: string;
   description: string;
   requirements: string[];
-  benefits: string[];
   postedAt: Date;
   applicationsCount?: number; // Número de candidaturas recebidas
   isActive?: boolean; // Se a vaga ainda está ativa

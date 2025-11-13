@@ -3,10 +3,12 @@ import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
 import { JobService } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
 
 type CreateJobScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateJob'>;
 
 export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
@@ -16,6 +18,7 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [showContractDropdown, setShowContractDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const validateForm = () => {
     if (!title.trim()) {
@@ -51,6 +54,11 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
       return;
     }
 
+    if (!user || user.userType !== 'company') {
+      Alert.alert('Erro', 'Apenas empresas podem criar vagas');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -68,11 +76,12 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
         category: category.trim(),
         type: contractType as 'full-time' | 'part-time' | 'contract' | 'internship',
         salary: salary.trim() || undefined,
-        benefits: [], // Por enquanto vazio, pode ser adicionado futuramente
+        company: user.name, // Nome da empresa logada
+        companyId: user.id,
       };
 
-      // Simular criação da vaga (aqui seria a integração com o JobService)
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Criação real da vaga usando o JobService
+      await JobService.createJob(jobData);
 
       Alert.alert(
         'Sucesso!',
@@ -122,6 +131,8 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
     setSalary,
     category,
     setCategory,
+    showCategoryDropdown,
+    setShowCategoryDropdown,
     loading,
     handleCreateJob,
     showContractDropdown,

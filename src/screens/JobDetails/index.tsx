@@ -12,7 +12,7 @@ type JobDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'JobDeta
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }) => {
   const { jobId } = route.params;
-  const { job, loading, handleApply, hasApplied, checkingApplication, isCandidate } = useJobDetails(jobId);
+  const { job, loading, handleApply, handleEdit, hasApplied, checkingApplication, isCandidate, isOwnerCompany } = useJobDetails(jobId);
 
   if (loading || !job) {
     return (
@@ -99,18 +99,6 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, 
             </View>
           )}
 
-          {/* Benefícios */}
-          {job.benefits && job.benefits.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Benefícios</Text>
-              {job.benefits.map((benefit, index) => (
-                <View key={index} style={styles.requirementItem}>
-                  <Text style={styles.bulletPoint}>•</Text>
-                  <Text style={styles.requirementText}>{benefit}</Text>
-                </View>
-              ))}
-            </View>
-          )}
         </View>
       </ScrollView>
 
@@ -124,6 +112,19 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, 
             size="large"
             disabled={hasApplied || checkingApplication}
             style={hasApplied ? styles.appliedButton : undefined}
+          />
+        </View>
+      )}
+
+      {/* Botão de editar - só aparece para empresa dona da vaga */}
+      {isOwnerCompany && (
+        <View style={styles.bottomContainer}>
+          <Button
+            title="Editar Vaga"
+            onPress={handleEdit}
+            fullWidth
+            size="large"
+            style={styles.editButton}
           />
         </View>
       )}
