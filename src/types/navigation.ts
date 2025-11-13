@@ -22,4 +22,5 @@ export type RootStackParamList = {
   JobDetails: { jobId: string };
   Applications: undefined;
   CreateJob: undefined;
+  EditProfile: undefined;
 }; 

@@ -69,7 +69,7 @@ export const ApplicationsScreen: React.FC<ApplicationsScreenProps> = ({ navigati
         
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => {}} // Implementar navegação para perfil
+          onPress={() => navigation.navigate('EditProfile')}
         >
           <Ionicons name="person-outline" size={24} color="#666666" />
           <Text style={styles.navLabel}>Perfil</Text>

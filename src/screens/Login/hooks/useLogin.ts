@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { AuthService } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export const useLogin = (navigation: LoginScreenNavigationProp) => {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,11 +21,11 @@ export const useLogin = (navigation: LoginScreenNavigationProp) => {
     setLoading(true);
     
     try {
-      const user = await AuthService.login({ email, password });
+      await signIn({ email, password });
       
       Alert.alert(
         "Login realizado!",
-        `Bem-vindo(a), ${user.name}!`,
+        "Bem-vindo(a)!",
         [
           {
             text: "OK",

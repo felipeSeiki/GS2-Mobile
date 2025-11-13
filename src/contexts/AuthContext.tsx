@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(user);
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, 'fake-token-' + Date.now());
       
       // Salva resposta para debug
       try {
@@ -69,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(user);
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, 'fake-token-' + Date.now());
       
       // Salva resposta para debug
       try {

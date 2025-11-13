@@ -31,6 +31,10 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
     navigation.navigate('Applications');
   };
 
+  const handleNavigateToProfile = () => {
+    navigation.navigate('EditProfile');
+  };
+
   const renderJobCard = ({ item }: { item: any }) => (
     <JobCard 
       job={item} 
@@ -104,7 +108,10 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
           <Text style={styles.tabLabel}>Candidaturas</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.tabItem}>
+        <TouchableOpacity 
+          style={styles.tabItem}
+          onPress={handleNavigateToProfile}
+        >
           <Ionicons name="person-outline" size={24} color="#CCCCCC" />
           <Text style={styles.tabLabel}>Perfil</Text>
         </TouchableOpacity>

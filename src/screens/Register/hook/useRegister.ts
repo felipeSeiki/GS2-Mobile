@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
-import { AuthService } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 type UserType = 'candidate' | 'company';
 
 export const useRegister = (navigation: RegisterScreenNavigationProp) => {
+  const { register } = useAuth();
   const [userType, setUserType] = useState<UserType>('candidate');
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,11 +72,11 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
         };
       }
       
-      const user = await AuthService.register(userData);
+      await register(userData);
       
       Alert.alert(
         "Sucesso!", 
-        `Conta criada com sucesso! Bem-vindo(a), ${user.name}!`,
+        "Conta criada com sucesso!",
         [
           {
             text: "OK",
