@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AuthService, User, LoginCredentials, RegisterData } from '../services/authService';
+import { AuthService, User, LoginCredentials, RegisterData, DataInitializationService } from '../services';
 
 // AuthContext usando o AuthService unificado
 
@@ -26,6 +26,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initializeAuth = async () => {
     try {
+      // Initialize all app data first
+      await DataInitializationService.initializeAppData();
+      
+      // Then initialize auth
       await AuthService.initialize();
       const currentUser = AuthService.getCurrentUser();
       setUser(currentUser);
@@ -69,10 +73,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('🧹 Limpando AsyncStorage...');
       await AuthService.clearStorage();
+      await DataInitializationService.resetAppData();
       setUser(null);
       
       console.log('✅ AsyncStorage limpo com sucesso!');
-      console.log('ℹ️ Reinicie o app para ver os dados originais dos mocks');
+      console.log('ℹ️ Dados resetados para valores originais dos mocks');
     } catch (error) {
       console.error('❌ Erro ao limpar AsyncStorage:', error);
     }
