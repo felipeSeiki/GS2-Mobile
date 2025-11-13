@@ -12,7 +12,7 @@ type JobDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'JobDeta
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }) => {
   const { jobId } = route.params;
-  const { job, loading, handleApply } = useJobDetails(jobId);
+  const { job, loading, handleApply, hasApplied, checkingApplication, isCandidate } = useJobDetails(jobId);
 
   if (loading || !job) {
     return (
@@ -49,28 +49,84 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, 
             <View style={styles.jobTitleContainer}>
               <Text style={styles.jobTitle}>{job.title}</Text>
               <Text style={styles.companyName}>{job.company}</Text>
+              <Text style={styles.jobLocation}>{job.location}</Text>
             </View>
           </View>
 
+          {/* Informações básicas */}
           <View style={styles.section}>
-            <Text style={styles.description}>
-              Estamos procurando um(a) {job.title} talentoso(a) e 
-              apaixonado(a) por tecnologia para se juntar à nossa equipe altamente qualificada. 
-              Você será responsável por projetar, desenvolver e manter aplicações web de 
-              alta performance, utilizando as mais recentes tecnologias do mercado.
-            </Text>
+            <Text style={styles.sectionTitle}>Informações da Vaga</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Categoria:</Text>
+                <Text style={styles.infoValue}>{job.category}</Text>
+              </View>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Tipo:</Text>
+                <Text style={styles.infoValue}>
+                  {job.type === 'full-time' ? 'Tempo Integral' : 
+                   job.type === 'part-time' ? 'Meio Período' :
+                   job.type === 'contract' ? 'Contrato' : 'Estágio'}
+                </Text>
+              </View>
+            </View>
+            {job.salary && (
+              <View style={styles.infoRow}>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Salário:</Text>
+                  <Text style={styles.infoValue}>{job.salary}</Text>
+                </View>
+              </View>
+            )}
           </View>
+
+          {/* Descrição */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Descrição</Text>
+            <Text style={styles.description}>{job.description}</Text>
+          </View>
+
+          {/* Requisitos */}
+          {job.requirements && job.requirements.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Requisitos</Text>
+              {job.requirements.map((requirement, index) => (
+                <View key={index} style={styles.requirementItem}>
+                  <Text style={styles.bulletPoint}>•</Text>
+                  <Text style={styles.requirementText}>{requirement}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Benefícios */}
+          {job.benefits && job.benefits.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Benefícios</Text>
+              {job.benefits.map((benefit, index) => (
+                <View key={index} style={styles.requirementItem}>
+                  <Text style={styles.bulletPoint}>•</Text>
+                  <Text style={styles.requirementText}>{benefit}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <Button
-          title="Candidatar-se"
-          onPress={handleApply}
-          fullWidth
-          size="large"
-        />
-      </View>
+      {/* Botão de candidatura - só aparece para candidatos */}
+      {isCandidate && (
+        <View style={styles.bottomContainer}>
+          <Button
+            title={hasApplied ? "Já Candidatado" : "Candidatar-se"}
+            onPress={handleApply}
+            fullWidth
+            size="large"
+            disabled={hasApplied || checkingApplication}
+            style={hasApplied ? styles.appliedButton : undefined}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };

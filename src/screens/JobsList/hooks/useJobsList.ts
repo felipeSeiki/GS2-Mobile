@@ -1,14 +1,38 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Job } from '../../../types';
-import { JobService } from '../../../services';
+import { JobService, ApplicationService } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const categories = ['Todas', 'Desenvolvimento', 'Design', 'Marketing', 'Dados'];
 
 export const useJobsList = () => {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [userApplications, setUserApplications] = useState<string[]>([]);
+
+  // Carregar candidaturas do usuário
+  useEffect(() => {
+    const loadUserApplications = async () => {
+      if (!user || user.userType !== 'candidate') {
+        setUserApplications([]);
+        return;
+      }
+
+      try {
+        const applications = await ApplicationService.getUserApplications(user.id);
+        const appliedJobIds = applications.map(app => app.jobId);
+        setUserApplications(appliedJobIds);
+      } catch (error) {
+        console.error('Erro ao carregar candidaturas do usuário:', error);
+        setUserApplications([]);
+      }
+    };
+
+    loadUserApplications();
+  }, [user]);
 
   // Carregar vagas iniciais
   useEffect(() => {
@@ -27,9 +51,14 @@ export const useJobsList = () => {
     loadJobs();
   }, []);
 
-  // Filtrar vagas baseado na busca e categoria
+  // Filtrar vagas baseado na busca, categoria e candidaturas
   const filteredJobs = useMemo(() => {
     let filtered = jobs;
+
+    // Para candidatos: remover vagas já aplicadas
+    if (user?.userType === 'candidate') {
+      filtered = filtered.filter((job: Job) => !userApplications.includes(job.id));
+    }
 
     // Filtrar por categoria
     if (selectedCategory !== 'Todas') {
@@ -47,7 +76,7 @@ export const useJobsList = () => {
     }
 
     return filtered;
-  }, [jobs, selectedCategory, searchQuery]);
+  }, [jobs, selectedCategory, searchQuery, userApplications, user]);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -73,9 +102,10 @@ export const useJobsList = () => {
     filteredJobs,
     loading,
     searchQuery,
-    setSearchQuery: handleSearch,
+    setSearchQuery,
     selectedCategory,
     setSelectedCategory,
     categories,
+    userApplications,
   };
 };

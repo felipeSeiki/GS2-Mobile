@@ -2,7 +2,7 @@ import { Application } from '../types';
 import { Candidate } from '../types/jobs';
 import { mockApplications } from '../mocks/applications.mock';
 import { mockJobs } from '../mocks/jobs.mock';
-import { mockCandidates } from '../mocks/candidates.mock';
+import { mockJobCandidates } from '../mocks/jobUsers.mock';
 
 export class ApplicationService {
   private static applications: Application[] = [...mockApplications];
@@ -53,8 +53,18 @@ export class ApplicationService {
       throw new Error('Vaga não encontrada');
     }
 
-    // Buscar informações do candidato
-    const candidate = mockCandidates.find(c => c.id === candidateId);
+    // Buscar informações do candidato e converter para Candidate
+    const jobCandidate = mockJobCandidates.find(c => c.id === candidateId);
+    const candidate: Candidate | undefined = jobCandidate ? {
+      id: jobCandidate.id,
+      name: jobCandidate.name,
+      email: jobCandidate.email,
+      phone: jobCandidate.phone,
+      location: jobCandidate.location,
+      skills: jobCandidate.skills,
+      experience: jobCandidate.experience,
+      profilePicture: jobCandidate.profilePicture,
+    } : undefined;
 
     const newApplication: Application = {
       id: `app_${Date.now()}`,

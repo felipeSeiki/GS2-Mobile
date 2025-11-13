@@ -8,6 +8,7 @@ import { BottomTabBar } from '../../components/BottomTabBar';
 import { useJobsList } from './hooks/useJobsList';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
+import { Job } from '../../types/jobs';
 import { styles } from './styles';
 
 type JobsListScreenProps = NativeStackScreenProps<RootStackParamList, 'JobsList'>;
@@ -22,15 +23,16 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
     selectedCategory,
     setSelectedCategory,
     categories,
+    userApplications,
   } = useJobsList();
 
-  const handleJobPress = (jobId: number) => {
-    navigation.navigate('JobDetails', { jobId: jobId.toString() });
+  const handleJobPress = (jobId: string) => {
+    navigation.navigate('JobDetails', { jobId });
   };
 
 
 
-  const renderJobCard = ({ item }: { item: any }) => (
+  const renderJobCard = ({ item }: { item: Job }) => (
     <JobCard 
       job={item} 
       onPress={() => handleJobPress(item.id)} 
@@ -80,11 +82,27 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
       <FlatList
         data={filteredJobs}
         renderItem={renderJobCard}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.jobsList}
         showsVerticalScrollIndicator={false}
         onRefresh={() => {}}
         refreshing={loading}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyTitle}>
+              {userApplications.length > 0 
+                ? "Todas as vagas foram aplicadas!" 
+                : "Nenhuma vaga encontrada"
+              }
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {userApplications.length > 0
+                ? "Você já se candidatou a todas as vagas disponíveis. Verifique suas candidaturas na aba correspondente."
+                : "Tente ajustar os filtros de busca ou categoria."
+              }
+            </Text>
+          </View>
+        )}
       />
 
       {/* Bottom Tab Bar */}

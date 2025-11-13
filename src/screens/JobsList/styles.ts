@@ -58,4 +58,23 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
     paddingTop: 8,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });

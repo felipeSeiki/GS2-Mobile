@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthService } from '../services/authService';
+import { ApplicationService } from '../services/applicationService';
 
 export class DevTools {
   
@@ -95,6 +97,76 @@ export class DevTools {
   }
 
   /**
+   * Faz login automático com credenciais de teste
+   */
+  static async autoLogin(userType: 'candidate' | 'company' = 'candidate'): Promise<void> {
+    if (!__DEV__) return;
+
+    try {
+      const credentials = userType === 'candidate' 
+        ? { email: 'ana.silva@email.com', password: '123456' }
+        : { email: 'contato@techcorp.com', password: '123456' };
+
+      await AuthService.login(credentials);
+      console.log(`✅ Login automático realizado como ${userType}!`);
+    } catch (error) {
+      console.error('❌ Erro no login automático:', error);
+    }
+  }
+
+  /**
+   * Testa funcionalidades de candidatura
+   */
+  static async testApplications(): Promise<void> {
+    if (!__DEV__) return;
+
+    try {
+      const user = AuthService.getCurrentUser();
+      if (!user || user.userType !== 'candidate') {
+        console.log('⚠️ Usuário não é candidato ou não está logado');
+        return;
+      }
+
+      console.log('🧪 === TESTE DE CANDIDATURAS ===');
+      console.log('👤 Usuário:', user.name, `(${user.id})`);
+
+      // Testa várias vagas
+      for (let i = 1; i <= 5; i++) {
+        const hasApplied = await ApplicationService.hasUserApplied(user.id, i.toString());
+        console.log(`🔍 Vaga ${i}: ${hasApplied ? '✅ JÁ SE CANDIDATOU' : '❌ AINDA NÃO'}`);
+      }
+
+      // Lista todas as candidaturas do usuário
+      const applications = await ApplicationService.getUserApplications(user.id);
+      console.log(`📋 Total de candidaturas: ${applications.length}`);
+      
+      console.log('🧪 === FIM DO TESTE ===');
+      
+    } catch (error) {
+      console.error('❌ Erro no teste:', error);
+    }
+  }
+
+  /**
+   * Mostra informações do usuário atual
+   */
+  static showUserInfo(): void {
+    if (!__DEV__) return;
+
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      console.log('👤 Usuário logado:', {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        type: user.userType
+      });
+    } else {
+      console.log('❌ Nenhum usuário logado');
+    }
+  }
+
+  /**
    * Mostra informações de debug no console
    */
   static logDebugInfo(): void {
@@ -116,5 +188,7 @@ if (__DEV__) {
   console.log('🔨 DevTools carregado!');
   console.log('💡 Use DevTools.clearAsyncStorage() para limpar o storage');
   console.log('💡 Use DevTools.debugAsyncStorage() para ver o conteúdo');
-  console.log('💡 Use DevTools.clearAppData() para limpar apenas dados do app');
+  console.log('💡 Use DevTools.autoLogin("candidate") para login automático');
+  console.log('💡 Use DevTools.testApplications() para testar candidaturas');
+  console.log('💡 Use DevTools.showUserInfo() para ver usuário atual');
 }

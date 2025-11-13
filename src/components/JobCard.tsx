@@ -3,44 +3,40 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Job } from '../types/jobs';
 
-interface JobCardJob extends Omit<Job, 'id'> {
-  id: number;
-  workType?: 'remote' | 'hybrid' | 'onsite';
-  salaryMin?: number;
-  salaryMax?: number;
-  currency?: string;
-}
-
 interface JobCardProps {
-  job: JobCardJob;
+  job: Job;
   onPress: () => void;
 }
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
 
-  const getWorkTypeIcon = (workType: string) => {
-    switch (workType) {
-      case 'remote':
-        return 'home-outline';
-      case 'hybrid':
-        return 'business-outline';
-      case 'onsite':
-        return 'location-outline';
+  const getJobTypeIcon = (type: string) => {
+    switch (type) {
+      case 'full-time':
+        return 'briefcase-outline';
+      case 'part-time':
+        return 'time-outline';
+      case 'contract':
+        return 'document-text-outline';
+      case 'internship':
+        return 'school-outline';
       default:
         return 'briefcase-outline';
     }
   };
 
-  const getWorkTypeLabel = (workType: string) => {
-    switch (workType) {
-      case 'remote':
-        return 'Remoto';
-      case 'hybrid':
-        return 'Híbrido';
-      case 'onsite':
-        return 'Presencial';
+  const getJobTypeLabel = (type: string) => {
+    switch (type) {
+      case 'full-time':
+        return 'Tempo Integral';
+      case 'part-time':
+        return 'Meio Período';
+      case 'contract':
+        return 'Contrato';
+      case 'internship':
+        return 'Estágio';
       default:
-        return workType;
+        return type;
     }
   };
 
@@ -66,18 +62,16 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
       </View>
 
       <View style={styles.details}>
-        {job.workType && (
-          <View style={styles.detailItem}>
-            <Ionicons 
-              name={getWorkTypeIcon(job.workType)} 
-              size={16} 
-              color="#FFFFFF" 
-            />
-            <Text style={styles.detailText}>
-              {getWorkTypeLabel(job.workType)}
-            </Text>
-          </View>
-        )}
+        <View style={styles.detailItem}>
+          <Ionicons 
+            name={getJobTypeIcon(job.type)} 
+            size={16} 
+            color="#FFFFFF" 
+          />
+          <Text style={styles.detailText}>
+            {getJobTypeLabel(job.type)}
+          </Text>
+        </View>
         
         <View style={styles.detailItem}>
           <Ionicons name="location-outline" size={16} color="#FFFFFF" />

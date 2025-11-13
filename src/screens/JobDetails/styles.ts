@@ -70,4 +70,55 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#2A2A2A',
   },
+  appliedButton: {
+    backgroundColor: '#4A4A4A',
+    opacity: 0.7,
+  },
+  jobLocation: {
+    fontSize: 14,
+    color: '#999999',
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 16,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  infoItem: {
+    flex: 1,
+    marginRight: 16,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#999999',
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  requirementItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  bulletPoint: {
+    fontSize: 16,
+    color: '#4A9EFF',
+    marginRight: 8,
+    marginTop: 2,
+  },
+  requirementText: {
+    fontSize: 16,
+    color: '#CCCCCC',
+    flex: 1,
+    lineHeight: 22,
+  },
 });
