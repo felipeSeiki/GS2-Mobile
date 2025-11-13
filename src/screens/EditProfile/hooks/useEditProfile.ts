@@ -32,12 +32,12 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
       setName(user.name || '');
       setEmail(user.email || '');
       
-      if (user.type === 'candidate' && user.skills) {
+      if (user.userType === 'candidate' && 'skills' in user && user.skills) {
         setSkills(user.skills.join(', '));
       }
-      
-      if (user.type === 'company' && user.companyDescription) {
-        setCompanyDescription(user.companyDescription);
+
+      if (user.userType === 'company' && 'description' in user) {
+        setCompanyDescription(user.description);
       }
     }
   }, [user]);
@@ -49,12 +49,12 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
     }
 
     // Validações específicas por tipo
-    if (user?.type === 'candidate' && !skills.trim()) {
+    if (user?.userType === 'candidate' && !skills.trim()) {
       Alert.alert("Erro", "Habilidades são obrigatórias para candidatos");
       return;
     }
 
-    if (user?.type === 'company' && !companyDescription.trim()) {
+    if (user?.userType === 'company' && !companyDescription.trim()) {
       Alert.alert("Erro", "Descrição da empresa é obrigatória");
       return;
     }

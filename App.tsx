@@ -7,6 +7,11 @@ import { AuthProvider } from './src/contexts/AuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import theme from './src/styles/theme';
 
+// Carregar DevTools em desenvolvimento
+if (__DEV__) {
+  require('./src/utils/devTools');
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

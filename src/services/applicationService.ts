@@ -1,110 +1,91 @@
 import { Application } from '../types';
+import { Candidate } from '../types/jobs';
+import { mockApplications } from '../mocks/applications.mock';
+import { mockJobs } from '../mocks/jobs.mock';
+import { mockCandidates } from '../mocks/candidates.mock';
 
 export class ApplicationService {
-  private static applications: Application[] = [];
+  private static applications: Application[] = [...mockApplications];
 
+  // Obter candidaturas de um usuário específico
   static async getUserApplications(userId: string): Promise<Application[]> {
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Mock applications for demo
-    const mockApplications: Application[] = [
-      {
-        id: '1',
-        jobId: '1',
-        candidateId: userId,
-        appliedAt: new Date('2024-01-16'),
-        status: 'reviewing',
-        job: {
-          id: '1',
-          title: 'Desenvolvedor React Native',
-          company: 'TechCorp',
-          location: 'São Paulo, SP',
-          category: 'Desenvolvimento',
-          type: 'full-time',
-          salary: 'R$ 8.000 - R$ 12.000',
-          description: 'Desenvolvedor React Native experiente.',
-          requirements: [],
-          benefits: [],
-          postedAt: new Date('2024-01-15'),
-        },
-      },
-      {
-        id: '2',
-        jobId: '2',
-        candidateId: userId,
-        appliedAt: new Date('2024-01-15'),
-        status: 'approved',
-        job: {
-          id: '2',
-          title: 'Designer UI/UX',
-          company: 'DesignStudio',
-          location: 'Rio de Janeiro, RJ',
-          category: 'Design',
-          type: 'full-time',
-          salary: 'R$ 6.000 - R$ 9.000',
-          description: 'Designer criativo para experiências digitais.',
-          requirements: [],
-          benefits: [],
-          postedAt: new Date('2024-01-14'),
-        },
-      },
-      {
-        id: '3',
-        jobId: '3',
-        candidateId: userId,
-        appliedAt: new Date('2024-01-14'),
-        status: 'rejected',
-        job: {
-          id: '3',
-          title: 'Analista de Marketing Digital',
-          company: 'MarketPro',
-          location: 'Belo Horizonte, MG',
-          category: 'Marketing',
-          type: 'full-time',
-          salary: 'R$ 4.500 - R$ 7.000',
-          description: 'Profissional para campanhas digitais.',
-          requirements: [],
-          benefits: [],
-          postedAt: new Date('2024-01-13'),
-        },
-      },
-    ];
-
-    return mockApplications;
+    return this.applications.filter(app => app.candidateId === userId);
   }
 
-  static async applyToJob(jobId: string, candidateId: string): Promise<Application> {
-    // Simulate API delay
+  // Obter candidaturas para uma vaga específica (para empresas visualizarem)
+  static async getJobApplications(jobId: string): Promise<Application[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    return this.applications.filter(app => app.jobId === jobId);
+  }
+
+  // Obter candidatura específica por ID
+  static async getApplicationById(applicationId: string): Promise<Application | null> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    return this.applications.find(app => app.id === applicationId) || null;
+  }
+
+  // Verificar se usuário já se candidatou a uma vaga
+  static async hasUserApplied(userId: string, jobId: string): Promise<boolean> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return this.applications.some(app => 
+      app.candidateId === userId && app.jobId === jobId
+    );
+  }
+
+  // Candidatar-se a uma vaga
+  static async applyToJob(jobId: string, candidateId: string, coverLetter?: string): Promise<Application> {
     await new Promise(resolve => setTimeout(resolve, 600));
 
+    // Verificar se já se candidatou
+    const hasApplied = await this.hasUserApplied(candidateId, jobId);
+    if (hasApplied) {
+      throw new Error('Você já se candidatou a esta vaga');
+    }
+
+    // Buscar informações da vaga
+    const job = mockJobs.find(j => j.id === jobId);
+    if (!job) {
+      throw new Error('Vaga não encontrada');
+    }
+
+    // Buscar informações do candidato
+    const candidate = mockCandidates.find(c => c.id === candidateId);
+
     const newApplication: Application = {
-      id: Date.now().toString(),
+      id: `app_${Date.now()}`,
       jobId,
       candidateId,
       appliedAt: new Date(),
       status: 'pending',
-      job: {
-        id: jobId,
-        title: 'Vaga Aplicada',
-        company: 'Empresa',
-        location: 'Localização',
-        category: 'Categoria',
-        type: 'full-time',
-        description: 'Descrição da vaga',
-        requirements: [],
-        benefits: [],
-        postedAt: new Date(),
-      },
+      job,
+      candidate,
+      coverLetter,
     };
 
     this.applications.push(newApplication);
+    
+    // Incrementar contador de candidaturas da vaga
+    if (job.applicationsCount !== undefined) {
+      job.applicationsCount++;
+    }
+
     return newApplication;
   }
 
-  static async getApplicationById(applicationId: string): Promise<Application | null> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return this.applications.find(app => app.id === applicationId) || null;
+  // Atualizar status de uma candidatura (para empresas)
+  static async updateApplicationStatus(applicationId: string, status: Application['status']): Promise<Application | null> {
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    const application = this.applications.find(app => app.id === applicationId);
+    if (application) {
+      application.status = status;
+    }
+
+    return application || null;
   }
 }

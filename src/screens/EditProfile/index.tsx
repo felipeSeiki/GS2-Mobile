@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
@@ -7,6 +7,7 @@ import { DangerButton } from '../../components/DangerButton';
 import { BottomTabBar } from '../../components/BottomTabBar';
 import { Header } from '../../components/Header';
 import { useEditProfile } from './hooks/useEditProfile';
+import { useAuth } from '../../contexts/AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import { styles } from './styles';
@@ -14,6 +15,7 @@ import { styles } from './styles';
 type EditProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
 
 export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation }) => {
+  const { clearStorage } = useAuth();
   const {
     user,
     name,
@@ -75,18 +77,18 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
               <Text style={styles.profileInitial}>{getInitial(user.name)}</Text>
             </View>
             <Text style={styles.profileName}>{user.name}</Text>
-            <Text style={styles.profileType}>{getUserTypeLabel(user.type)}</Text>
+            <Text style={styles.profileType}>{getUserTypeLabel(user.userType)}</Text>
           </View>
 
           {/* Informações Básicas */}
           <Text style={styles.sectionTitle}>Informações Básicas</Text>
           <View style={styles.formContainer}>
             <Input
-              label={user.type === 'candidate' ? "Nome Completo" : "Nome da Empresa"}
-              placeholder={user.type === 'candidate' ? "Seu nome completo" : "Nome da sua empresa"}
+              label={user.userType === 'candidate' ? "Nome Completo" : "Nome da Empresa"}
+              placeholder={user.userType === 'candidate' ? "Seu nome completo" : "Nome da sua empresa"}
               value={name}
               onChangeText={setName}
-              icon={user.type === 'candidate' ? "person-outline" : "business-outline"}
+              icon={user.userType === 'candidate' ? "person-outline" : "business-outline"}
             />
 
             <Input
@@ -99,7 +101,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
               icon="mail-outline"
             />
 
-            {user.type === 'candidate' ? (
+            {user.userType === 'candidate' ? (
               <Input
                 label="Habilidades Principais"
                 placeholder="Descreva brevemente suas principais habilidades e competências: Ex: JavaScript, React, Node.js, Liderança de equipe..."
@@ -180,6 +182,56 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
               onPress={handleDeleteAccount}
               fullWidth
             />
+
+            {/* Botões temporários para desenvolvimento */}
+            {__DEV__ && (
+              <View style={{ gap: 8, marginTop: 12 }}>
+                <TouchableOpacity 
+                  style={{
+                    backgroundColor: '#FF9800',
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                  }}
+                  onPress={async () => {
+                    try {
+                      const { DevTools } = require('../../utils/devTools');
+                      await DevTools.clearAppData();
+                      await clearStorage();
+                      Alert.alert(
+                        'Dados Limpos!', 
+                        'AsyncStorage limpo. Feche e abra o app novamente para ver os mocks originais.',
+                        [{ text: 'OK' }]
+                      );
+                    } catch (error) {
+                      Alert.alert('Erro', 'Erro ao limpar dados: ' + error);
+                    }
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+                    🧹 Resetar AsyncStorage (Dev)
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={{
+                    backgroundColor: '#2196F3',
+                    padding: 12,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                  }}
+                  onPress={async () => {
+                    const { DevTools } = require('../../utils/devTools');
+                    await DevTools.debugAsyncStorage();
+                    Alert.alert('Debug', 'Confira o console para ver os dados do AsyncStorage');
+                  }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
+                    🔍 Debug AsyncStorage (Dev)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>

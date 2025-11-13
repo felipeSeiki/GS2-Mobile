@@ -18,7 +18,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, activeTa
   };
 
   const handleMiddleTabPress = () => {
-    if (user?.type === 'company') {
+    if (user?.userType === 'company') {
       navigation.navigate('CreateJob');
     } else {
       navigation.navigate('Applications');
@@ -30,14 +30,14 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, activeTa
   };
 
   const getMiddleTabIcon = () => {
-    if (user?.type === 'company') {
+    if (user?.userType === 'company') {
       return activeTab === 'applications' ? 'add-circle' : 'add-circle-outline';
     }
     return activeTab === 'applications' ? 'document-text' : 'document-text-outline';
   };
 
   const getMiddleTabLabel = () => {
-    return user?.type === 'company' ? 'Criar Vaga' : 'Candidaturas';
+    return user?.userType === 'company' ? 'Criar Vaga' : 'Candidaturas';
   };
 
   return (

@@ -1,13 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AuthService, User, LoginCredentials, RegisterData } from '../services';
+import { AuthService, User, LoginCredentials, RegisterData } from '../services/authService';
 
-// Chaves de armazenamento
-const STORAGE_KEYS = {
-  USER: '@JobApp:user',
-  TOKEN: '@JobApp:token',
-  LAST_AUTH_RESPONSE: '@JobApp:lastAuthResponse',
-};
+// AuthContext usando o AuthService unificado
 
 export interface AuthContextData {
   user: User | null;
@@ -15,6 +10,7 @@ export interface AuthContextData {
   signIn: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   signOut: () => Promise<void>;
+  clearStorage: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -25,20 +21,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStoredData();
+    initializeAuth();
   }, []);
 
-  const loadStoredData = async () => {
+  const initializeAuth = async () => {
     try {
-      const storedUser = await AsyncStorage.getItem(STORAGE_KEYS.USER);
-      const storedToken = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
-      
-      if (storedUser && storedToken) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      }
+      await AuthService.initialize();
+      const currentUser = AuthService.getCurrentUser();
+      setUser(currentUser);
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error('Erro ao inicializar auth:', error);
     } finally {
       setLoading(false);
     }
@@ -47,17 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (credentials: LoginCredentials) => {
     try {
       const user = await AuthService.login(credentials);
-
       setUser(user);
-      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, 'fake-token-' + Date.now());
-      
-      // Salva resposta para debug
-      try {
-        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(user));
-      } catch (e) {
-        console.warn('Não foi possível salvar last auth response:', e);
-      }
     } catch (error) {
       console.error('Erro no signIn:', error);
       throw error;
@@ -67,17 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterData) => {
     try {
       const user = await AuthService.register(data);
-
       setUser(user);
-      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, 'fake-token-' + Date.now());
-      
-      // Salva resposta para debug
-      try {
-        await AsyncStorage.setItem(STORAGE_KEYS.LAST_AUTH_RESPONSE, JSON.stringify(user));
-      } catch (e) {
-        console.warn('Não foi possível salvar last auth response (register):', e);
-      }
     } catch (error) {
       console.error('Erro no register:', error);
       throw error;
@@ -88,10 +60,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await AuthService.logout();
       setUser(null);
-      await AsyncStorage.removeItem(STORAGE_KEYS.USER);
-      await AsyncStorage.removeItem(STORAGE_KEYS.TOKEN);
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
+    }
+  };
+
+  const clearStorage = async () => {
+    try {
+      console.log('🧹 Limpando AsyncStorage...');
+      await AuthService.clearStorage();
+      setUser(null);
+      
+      console.log('✅ AsyncStorage limpo com sucesso!');
+      console.log('ℹ️ Reinicie o app para ver os dados originais dos mocks');
+    } catch (error) {
+      console.error('❌ Erro ao limpar AsyncStorage:', error);
     }
   };
 
@@ -105,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signIn, 
         register, 
         signOut,
+        clearStorage,
         isAuthenticated
       }}
     >

@@ -10,6 +10,19 @@ export interface Job {
   requirements: string[];
   benefits: string[];
   postedAt: Date;
+  applicationsCount?: number; // Número de candidaturas recebidas
+  isActive?: boolean; // Se a vaga ainda está ativa
+}
+
+export interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  skills: string[];
+  experience?: string;
+  profilePicture?: string;
 }
 
 export interface Application {
@@ -19,4 +32,6 @@ export interface Application {
   appliedAt: Date;
   status: 'pending' | 'reviewing' | 'approved' | 'rejected';
   job: Job;
+  candidate?: Candidate; // Informações do candidato (para visualização da empresa)
+  coverLetter?: string; // Carta de apresentação
 }
