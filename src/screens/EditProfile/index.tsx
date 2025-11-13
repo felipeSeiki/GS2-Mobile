@@ -7,7 +7,6 @@ import { DangerButton } from '../../components/DangerButton';
 import { BottomTabBar } from '../../components/BottomTabBar';
 import { Header } from '../../components/Header';
 import { useEditProfile } from './hooks/useEditProfile';
-import { useAuth } from '../../contexts/AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import { styles } from './styles';
@@ -15,7 +14,6 @@ import { styles } from './styles';
 type EditProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
 
 export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation }) => {
-  const { clearStorage } = useAuth();
   const {
     user,
     name,
@@ -65,7 +63,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
     <SafeAreaView style={styles.container}>
       <Header 
         title="Editar Perfil"
-        showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
       
@@ -182,56 +179,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ navigation
               onPress={handleDeleteAccount}
               fullWidth
             />
-
-            {/* Botões temporários para desenvolvimento */}
-            {__DEV__ && (
-              <View style={{ gap: 8, marginTop: 12 }}>
-                <TouchableOpacity 
-                  style={{
-                    backgroundColor: '#FF9800',
-                    padding: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                  }}
-                  onPress={async () => {
-                    try {
-                      const { DevTools } = require('../../utils/devTools');
-                      await DevTools.clearAppData();
-                      await clearStorage();
-                      Alert.alert(
-                        'Dados Limpos!', 
-                        'AsyncStorage limpo. Feche e abra o app novamente para ver os mocks originais.',
-                        [{ text: 'OK' }]
-                      );
-                    } catch (error) {
-                      Alert.alert('Erro', 'Erro ao limpar dados: ' + error);
-                    }
-                  }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-                    🧹 Resetar AsyncStorage (Dev)
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={{
-                    backgroundColor: '#2196F3',
-                    padding: 12,
-                    borderRadius: 8,
-                    alignItems: 'center',
-                  }}
-                  onPress={async () => {
-                    const { DevTools } = require('../../utils/devTools');
-                    await DevTools.debugAsyncStorage();
-                    Alert.alert('Debug', 'Confira o console para ver os dados do AsyncStorage');
-                  }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-                    🔍 Debug AsyncStorage (Dev)
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
         </View>
       </ScrollView>

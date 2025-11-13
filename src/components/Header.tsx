@@ -19,7 +19,6 @@ export const Header: React.FC<HeaderProps> = ({
   backgroundColor = '#1A1A1A',
 }) => {
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor }]}>
       <View style={styles.container}>
         <View style={styles.leftSection}>
           {showBackButton && (
@@ -40,7 +39,6 @@ export const Header: React.FC<HeaderProps> = ({
           {rightComponent}
         </View>
       </View>
-    </SafeAreaView>
   );
 };
 
@@ -52,9 +50,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 56,
+    paddingHorizontal: 20,
+    paddingVertical: '4%',
   },
   leftSection: {
     flex: 1,
@@ -74,8 +71,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

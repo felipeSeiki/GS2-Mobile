@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
