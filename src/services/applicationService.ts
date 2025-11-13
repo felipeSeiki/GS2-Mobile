@@ -1,59 +1,87 @@
 import { Application } from '../types';
 import { Candidate } from '../types/jobs';
 import { mockApplications } from '../mocks/applications.mock';
-import { mockJobs } from '../mocks/jobs.mock';
 import { mockJobCandidates } from '../mocks/jobUsers.mock';
+import { BaseStorageService } from './baseStorage';
+import { JobService } from './jobService';
 
 export class ApplicationService {
-  private static applications: Application[] = [...mockApplications];
+  private static storage = new BaseStorageService<Application>('@applications');
+  private static initialized = false;
 
-  // Obter candidaturas de um usuário específico
+  /**
+   * Initialize storage with default data if needed
+   */
+  private static async initialize(): Promise<void> {
+    if (!this.initialized) {
+      await this.storage.initializeWithDefaults(mockApplications);
+      this.initialized = true;
+    }
+  }
+
+  /**
+   * Get applications by user ID
+   */
   static async getUserApplications(userId: string): Promise<Application[]> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    return this.applications.filter(app => app.candidateId === userId);
+    return await this.storage.findBy(app => app.candidateId === userId);
   }
 
-  // Obter candidaturas para uma vaga específica (para empresas visualizarem)
+  /**
+   * Get applications for a specific job (for companies)
+   */
   static async getJobApplications(jobId: string): Promise<Application[]> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    return this.applications.filter(app => app.jobId === jobId);
+    return await this.storage.findBy(app => app.jobId === jobId);
   }
 
-  // Obter candidatura específica por ID
+  /**
+   * Get application by ID
+   */
   static async getApplicationById(applicationId: string): Promise<Application | null> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    return this.applications.find(app => app.id === applicationId) || null;
+    return await this.storage.getById(applicationId);
   }
 
-  // Verificar se usuário já se candidatou a uma vaga
+  /**
+   * Check if user has already applied to a job
+   */
   static async hasUserApplied(userId: string, jobId: string): Promise<boolean> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 200));
     
-    return this.applications.some(app => 
+    const application = await this.storage.findOneBy(app => 
       app.candidateId === userId && app.jobId === jobId
     );
+    return application !== null;
   }
 
-  // Candidatar-se a uma vaga
+  /**
+   * Apply to a job
+   */
   static async applyToJob(jobId: string, candidateId: string, coverLetter?: string): Promise<Application> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    // Verificar se já se candidatou
+    // Check if already applied
     const hasApplied = await this.hasUserApplied(candidateId, jobId);
     if (hasApplied) {
       throw new Error('Você já se candidatou a esta vaga');
     }
 
-    // Buscar informações da vaga
-    const job = mockJobs.find(j => j.id === jobId);
+    // Get job information
+    const job = await JobService.getJobById(jobId);
     if (!job) {
       throw new Error('Vaga não encontrada');
     }
 
-    // Buscar informações do candidato e converter para Candidate
+    // Get candidate information
     const jobCandidate = mockJobCandidates.find(c => c.id === candidateId);
     const candidate: Candidate | undefined = jobCandidate ? {
       id: jobCandidate.id,
@@ -66,8 +94,7 @@ export class ApplicationService {
       profilePicture: jobCandidate.profilePicture,
     } : undefined;
 
-    const newApplication: Application = {
-      id: `app_${Date.now()}`,
+    const newApplication: Omit<Application, 'id'> = {
       jobId,
       candidateId,
       appliedAt: new Date(),
@@ -77,25 +104,77 @@ export class ApplicationService {
       coverLetter,
     };
 
-    this.applications.push(newApplication);
+    const createdApplication = await this.storage.create(newApplication);
     
-    // Incrementar contador de candidaturas da vaga
-    if (job.applicationsCount !== undefined) {
-      job.applicationsCount++;
-    }
+    // Increment applications count for the job
+    await JobService.incrementApplicationsCount(jobId);
 
-    return newApplication;
+    return createdApplication;
   }
 
-  // Atualizar status de uma candidatura (para empresas)
+  /**
+   * Update application status (for companies)
+   */
   static async updateApplicationStatus(applicationId: string, status: Application['status']): Promise<Application | null> {
+    await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    const application = this.applications.find(app => app.id === applicationId);
-    if (application) {
-      application.status = status;
-    }
+    return await this.storage.update(applicationId, { status });
+  }
 
-    return application || null;
+  /**
+   * Delete application
+   */
+  static async deleteApplication(applicationId: string): Promise<boolean> {
+    await this.initialize();
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return await this.storage.delete(applicationId);
+  }
+
+  /**
+   * Get all applications
+   */
+  static async getAllApplications(): Promise<Application[]> {
+    await this.initialize();
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    return await this.storage.getAll();
+  }
+
+  /**
+   * Get applications by status
+   */
+  static async getApplicationsByStatus(status: Application['status']): Promise<Application[]> {
+    await this.initialize();
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    return await this.storage.findBy(app => app.status === status);
+  }
+
+  /**
+   * Get applications count by job
+   */
+  static async getApplicationsCountByJob(jobId: string): Promise<number> {
+    await this.initialize();
+    const applications = await this.getJobApplications(jobId);
+    return applications.length;
+  }
+
+  /**
+   * Get applications count by candidate
+   */
+  static async getApplicationsCountByCandidate(candidateId: string): Promise<number> {
+    await this.initialize();
+    const applications = await this.getUserApplications(candidateId);
+    return applications.length;
+  }
+
+  /**
+   * Clear all applications (for testing/reset)
+   */
+  static async clearAllApplications(): Promise<void> {
+    await this.storage.clear();
+    this.initialized = false;
   }
 }
