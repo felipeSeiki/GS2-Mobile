@@ -1,104 +1,72 @@
 import { useState, useEffect } from 'react';
 import { Application } from '../../../types';
+import { ApplicationService } from '../../../services';
+import { useAuth } from '../../../contexts/AuthContext';
 
 export const useApplications = () => {
+  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadApplications = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        const mockData: Application[] = [
-          {
-            id: '1',
-            jobId: '1',
-            candidateId: 'candidate1',
-            appliedAt: new Date('2024-01-16'),
-            status: 'approved',
-            job: {
-              id: '1',
-              title: 'Designer de Produto Sênior',
-              company: 'TechCorp',
-              location: 'São Paulo, SP',
-              category: 'Design',
-              type: 'full-time',
-              description: 'Designer experiente.',
-              requirements: [],
-              postedAt: new Date('2024-01-15'),
-            },
-          },
-          {
-            id: '2',
-            jobId: '2',
-            candidateId: 'candidate1',
-            appliedAt: new Date('2024-01-15'),
-            status: 'reviewing',
-            job: {
-              id: '2',
-              title: 'Engenheiro(a) de Software',
-              company: 'DevStudio',
-              location: 'Rio de Janeiro, RJ',
-              category: 'Desenvolvimento',
-              type: 'full-time',
-              description: 'Desenvolvedor experiente.',
-              requirements: [],
-              postedAt: new Date('2024-01-14'),
-            },
-          },
-          {
-            id: '3',
-            jobId: '3',
-            candidateId: 'candidate1',
-            appliedAt: new Date('2024-01-14'),
-            status: 'pending',
-            job: {
-              id: '3',
-              title: 'Analista de Marketing Digital',
-              company: 'MarketPro',
-              location: 'Belo Horizonte, MG',
-              category: 'Marketing',
-              type: 'full-time',
-              description: 'Profissional para campanhas digitais.',
-              requirements: [],
-              postedAt: new Date('2024-01-13'),
-            },
-          },
-          {
-            id: '4',
-            jobId: '4',
-            candidateId: 'candidate1',
-            appliedAt: new Date('2024-01-13'),
-            status: 'rejected',
-            job: {
-              id: '4',
-              title: 'Gerente de Projetos',
-              company: 'ProjectCorp',
-              location: 'São Paulo, SP',
-              category: 'Gestão',
-              type: 'full-time',
-              description: 'Gerente de projetos experiente.',
-              requirements: [],
-              postedAt: new Date('2024-01-12'),
-            },
-          },
-        ];
-        
-        setApplications(mockData);
+        // Carregar candidaturas do usuário atual usando ApplicationService
+        const userApplications = await ApplicationService.getUserApplications(user.id);
+        setApplications(userApplications);
       } catch (error) {
         console.error('Erro ao carregar candidaturas:', error);
+        setApplications([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadApplications();
-  }, []);
+  }, [user]);
+
+  // Método para atualizar status de uma candidatura
+  const updateApplicationStatus = async (applicationId: string, status: 'pending' | 'reviewing' | 'approved' | 'rejected') => {
+    try {
+      await ApplicationService.updateApplicationStatus(applicationId, status);
+      
+      // Atualizar estado local
+      setApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId 
+            ? { ...app, status }
+            : app
+        )
+      );
+    } catch (error) {
+      console.error('Erro ao atualizar status da candidatura:', error);
+      throw error;
+    }
+  };
+
+  // Método para remover candidatura
+  const removeApplication = async (applicationId: string) => {
+    try {
+      await ApplicationService.deleteApplication(applicationId);
+      
+      // Atualizar estado local
+      setApplications(prev => prev.filter(app => app.id !== applicationId));
+    } catch (error) {
+      console.error('Erro ao remover candidatura:', error);
+      throw error;
+    }
+  };
 
   return {
     applications,
     loading,
+    updateApplicationStatus,
+    removeApplication,
   };
 };

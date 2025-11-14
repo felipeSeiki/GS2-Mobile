@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Job } from '../types/jobs';
+import { formatDate } from '../utils/dateUtils';
 
 interface JobCardProps {
   job: Job;
@@ -101,7 +102,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
         </View>
         
         <Text style={styles.postedDate}>
-          {new Date(job.postedAt).toLocaleDateString('pt-BR', {
+          {formatDate(job.postedAt, 'pt-BR', {
             day: '2-digit',
             month: '2-digit',
           })}

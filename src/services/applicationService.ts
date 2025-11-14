@@ -4,6 +4,7 @@ import { mockApplications } from '../mocks/applications.mock';
 import { mockJobCandidates } from '../mocks/jobUsers.mock';
 import { BaseStorageService } from './baseStorage';
 import { JobService } from './jobService';
+import { deserializeDatesInArray, deserializeDates } from '../utils/dateUtils';
 
 export class ApplicationService {
   private static storage = new BaseStorageService<Application>('@applications');
@@ -26,7 +27,9 @@ export class ApplicationService {
     await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    return await this.storage.findBy(app => app.candidateId === userId);
+    const applications = await this.storage.findBy(app => app.candidateId === userId);
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(applications, ['appliedAt', 'job.postedAt']);
   }
 
   /**
@@ -36,7 +39,9 @@ export class ApplicationService {
     await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    return await this.storage.findBy(app => app.jobId === jobId);
+    const applications = await this.storage.findBy(app => app.jobId === jobId);
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(applications, ['appliedAt', 'job.postedAt']);
   }
 
   /**
@@ -46,7 +51,12 @@ export class ApplicationService {
     await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    return await this.storage.getById(applicationId);
+    const application = await this.storage.getById(applicationId);
+    if (application) {
+      // Deserialize dates that were stored as strings
+      return deserializeDates(application, ['appliedAt', 'job.postedAt']);
+    }
+    return null;
   }
 
   /**
@@ -139,7 +149,9 @@ export class ApplicationService {
     await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    return await this.storage.getAll();
+    const applications = await this.storage.getAll();
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(applications, ['appliedAt', 'job.postedAt']);
   }
 
   /**
@@ -149,7 +161,9 @@ export class ApplicationService {
     await this.initialize();
     await new Promise(resolve => setTimeout(resolve, 400));
 
-    return await this.storage.findBy(app => app.status === status);
+    const applications = await this.storage.findBy(app => app.status === status);
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(applications, ['appliedAt', 'job.postedAt']);
   }
 
   /**

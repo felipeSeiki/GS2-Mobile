@@ -1,6 +1,7 @@
 import { Job } from '../types';
 import { mockJobs } from '../mocks/jobs.mock';
 import { BaseStorageService } from './baseStorage';
+import { deserializeDatesInArray, deserializeDates } from '../utils/dateUtils';
 
 export interface CreateJobData {
   title: string;
@@ -35,7 +36,9 @@ export class JobService {
     await this.initialize();
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    return await this.storage.getAll();
+    const jobs = await this.storage.getAll();
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(jobs, ['postedAt']);
   }
 
   /**
@@ -45,7 +48,12 @@ export class JobService {
     await this.initialize();
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
-    return await this.storage.getById(id);
+    const job = await this.storage.getById(id);
+    if (job) {
+      // Deserialize dates that were stored as strings
+      return deserializeDates(job, ['postedAt']);
+    }
+    return null;
   }
 
   /**
@@ -56,17 +64,21 @@ export class JobService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 400));
     
+    let jobs: Job[];
     if (!query.trim()) {
-      return await this.storage.getAll();
+      jobs = await this.storage.getAll();
+    } else {
+      const lowercaseQuery = query.toLowerCase();
+      jobs = await this.storage.findBy(job => 
+        job.title.toLowerCase().includes(lowercaseQuery) ||
+        job.company.toLowerCase().includes(lowercaseQuery) ||
+        job.category.toLowerCase().includes(lowercaseQuery) ||
+        job.location.toLowerCase().includes(lowercaseQuery)
+      );
     }
-
-    const lowercaseQuery = query.toLowerCase();
-    return await this.storage.findBy(job => 
-      job.title.toLowerCase().includes(lowercaseQuery) ||
-      job.company.toLowerCase().includes(lowercaseQuery) ||
-      job.category.toLowerCase().includes(lowercaseQuery) ||
-      job.location.toLowerCase().includes(lowercaseQuery)
-    );
+    
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(jobs, ['postedAt']);
   }
 
   /**
@@ -77,11 +89,15 @@ export class JobService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 400));
     
+    let jobs: Job[];
     if (category === 'Todas') {
-      return await this.storage.getAll();
+      jobs = await this.storage.getAll();
+    } else {
+      jobs = await this.storage.findBy(job => job.category === category);
     }
-
-    return await this.storage.findBy(job => job.category === category);
+    
+    // Deserialize dates that were stored as strings
+    return deserializeDatesInArray(jobs, ['postedAt']);
   }
 
   /**

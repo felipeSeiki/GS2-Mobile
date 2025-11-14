@@ -189,7 +189,7 @@ export class BaseStorageService<T extends { id: string }> {
       const existingData = await this.getAll();
       if (existingData.length === 0) {
         await this.saveAll(defaultData);
-        console.log(`Initialized ${this.storageKey} with ${defaultData.length} default items`);
+
       }
     } catch (error) {
       console.error(`Error initializing ${this.storageKey}:`, error);

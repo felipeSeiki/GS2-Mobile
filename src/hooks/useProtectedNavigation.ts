@@ -63,15 +63,12 @@ export const useProtectedNavigation = () => {
   };
 
   /**
-   * Logout e volta para tela de onboarding
+   * Logout - deixa o sistema de proteção de rotas gerenciar a navegação
    */
   const logout = async () => {
     try {
       await signOut();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Onboarding' }],
-      });
+      // O AppNavigator irá automaticamente redirecionar para rotas públicas
     } catch (error) {
       Alert.alert('Erro', 'Erro ao fazer logout. Tente novamente.');
     }

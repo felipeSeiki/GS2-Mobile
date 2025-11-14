@@ -18,6 +18,19 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
   const [companyDescription, setCompanyDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Função melhorada para alterar tipo de usuário
+  const handleUserTypeChange = (type: UserType) => {
+    setUserType(type);
+    // Limpar campos específicos do tipo anterior
+    if (type === 'candidate') {
+      setCompanyName("");
+      setCompanyDescription("");
+    } else {
+      setFullName("");
+      setSkills("");
+    }
+  };
+
   const handleRegister = async () => {
     // Validações comuns
     if (!email || !password) {
@@ -54,7 +67,7 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
       let userData: any = {
         email,
         password,
-        type: userType
+        userType: userType
       };
 
       if (userType === 'candidate') {
@@ -68,7 +81,7 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
         userData = {
           ...userData,
           name: companyName,
-          companyDescription
+          description: companyDescription
         };
       }
       
@@ -93,7 +106,7 @@ export const useRegister = (navigation: RegisterScreenNavigationProp) => {
 
   return {
     userType,
-    setUserType,
+    setUserType: handleUserTypeChange,
     fullName,
     setFullName,
     email,

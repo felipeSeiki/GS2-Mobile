@@ -8,7 +8,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'EditProfile'>;
 
 export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
-  const { user, signOut } = useAuth();
+  const { user, updateProfile, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
 
 
@@ -43,18 +43,23 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
   }, [user]);
 
   const handleSaveProfile = async () => {
+    if (!user) {
+      Alert.alert("Erro", "Usuário não encontrado");
+      return;
+    }
+
     if (!name || !email) {
       Alert.alert("Erro", "Nome e email são obrigatórios");
       return;
     }
 
     // Validações específicas por tipo
-    if (user?.userType === 'candidate' && !skills.trim()) {
+    if (user.userType === 'candidate' && !skills.trim()) {
       Alert.alert("Erro", "Habilidades são obrigatórias para candidatos");
       return;
     }
 
-    if (user?.userType === 'company' && !companyDescription.trim()) {
+    if (user.userType === 'company' && !companyDescription.trim()) {
       Alert.alert("Erro", "Descrição da empresa é obrigatória");
       return;
     }
@@ -75,6 +80,12 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
         Alert.alert("Erro", "A confirmação da senha não confere");
         return;
       }
+
+      // Validar senha atual (simulação)
+      if (currentPassword !== user.password) {
+        Alert.alert("Erro", "Senha atual incorreta");
+        return;
+      }
     }
 
     if (!email.includes('@')) {
@@ -85,8 +96,31 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
     setLoading(true);
     
     try {
-      // Simular atualização do perfil
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Preparar dados para atualização
+      const updates: any = {
+        name: name.trim(),
+        email: email.trim(),
+      };
+
+      // Adicionar senha se foi alterada
+      if (newPassword) {
+        updates.password = newPassword;
+      }
+
+      // Adicionar campos específicos por tipo de usuário
+      if (user.userType === 'candidate') {
+        updates.skills = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
+      } else if (user.userType === 'company') {
+        updates.description = companyDescription.trim();
+      }
+
+      // Atualizar perfil usando AuthContext
+      await updateProfile(updates);
+      
+      // Limpar campos de senha
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
       
       Alert.alert(
         "Sucesso!", 
@@ -98,8 +132,8 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
           }
         ]
       );
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível atualizar o perfil. Tente novamente.");
+    } catch (error: any) {
+      Alert.alert("Erro", error.message || "Não foi possível atualizar o perfil. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -120,7 +154,6 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
           onPress: async () => {
             try {
               await signOut();
-              navigation.navigate('Login');
             } catch (error) {
               Alert.alert("Erro", "Não foi possível excluir a conta.");
             }
@@ -144,7 +177,6 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
           onPress: async () => {
             try {
               await signOut();
-              navigation.navigate('Login');
             } catch (error) {
               Alert.alert("Erro", "Não foi possível fazer logout.");
             }

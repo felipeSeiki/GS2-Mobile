@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Application } from '../types';
+import { formatDate as formatDateUtil } from '../utils/dateUtils';
 
 interface ApplicationCardProps {
   application: Application;
@@ -54,13 +55,7 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, o
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(date);
-  };
+
 
   const getCompanyInitial = (companyName: string) => {
     return companyName.charAt(0).toUpperCase();
@@ -122,7 +117,7 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({ application, o
         {/* Footer com data de aplicação */}
         <View style={styles.footer}>
           <Text style={styles.appliedDate}>
-            Aplicado em {formatDate(application.appliedAt)}
+            Aplicado em {formatDateUtil(application.appliedAt)}
           </Text>
           <Ionicons name="chevron-forward" size={20} color="#A0A0A0" />
         </View>

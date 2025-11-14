@@ -9,6 +9,7 @@ export interface AuthContextData {
   loading: boolean;
   signIn: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
   signOut: () => Promise<void>;
   clearStorage: () => Promise<void>;
   isAuthenticated: boolean;
@@ -60,6 +61,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (updates: Partial<User>) => {
+    try {
+      const updatedUser = await AuthService.updateProfile(updates);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Erro no updateProfile:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await AuthService.logout();
@@ -71,13 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearStorage = async () => {
     try {
-      console.log('🧹 Limpando AsyncStorage...');
       await AuthService.clearStorage();
       await DataInitializationService.resetAppData();
       setUser(null);
-      
-      console.log('✅ AsyncStorage limpo com sucesso!');
-      console.log('ℹ️ Dados resetados para valores originais dos mocks');
     } catch (error) {
       console.error('❌ Erro ao limpar AsyncStorage:', error);
     }
@@ -92,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading, 
         signIn, 
         register, 
+        updateProfile,
         signOut,
         clearStorage,
         isAuthenticated

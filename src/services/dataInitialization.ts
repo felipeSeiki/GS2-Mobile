@@ -16,8 +16,6 @@ export class DataInitializationService {
   static async initializeAppData(): Promise<void> {
     if (this.initialized) return;
 
-    console.log('🚀 Initializing app data...');
-
     try {
       // Initialize all services (they will populate with mock data if empty)
       await Promise.all([
@@ -28,7 +26,6 @@ export class DataInitializationService {
       ]);
 
       this.initialized = true;
-      console.log('✅ App data initialization completed');
     } catch (error) {
       console.error('❌ Error initializing app data:', error);
       throw error;
@@ -39,7 +36,7 @@ export class DataInitializationService {
    * Reset all app data to initial state
    */
   static async resetAppData(): Promise<void> {
-    console.log('🔄 Resetting app data...');
+
 
     try {
       await Promise.all([
@@ -54,7 +51,7 @@ export class DataInitializationService {
       // Re-initialize with fresh data
       await this.initializeAppData();
       
-      console.log('✅ App data reset completed');
+
     } catch (error) {
       console.error('❌ Error resetting app data:', error);
       throw error;
