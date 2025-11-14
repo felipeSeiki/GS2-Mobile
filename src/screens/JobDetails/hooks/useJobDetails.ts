@@ -70,15 +70,27 @@ export const useJobDetails = (jobId: string) => {
       setHasApplied(true);
       
       Alert.alert(
-        'Candidatura Enviada!',
-        `Sua candidatura para a vaga de ${job.title} na ${job.company} foi enviada com sucesso!`,
-        [{ text: 'OK', style: 'default' }]
+        'Candidatura Enviada! ✅',
+        `Sua candidatura para a vaga de ${job.title} na ${job.company} foi enviada com sucesso!\n\nVocê pode acompanhar o status na seção "Minhas Candidaturas".`,
+        [
+          { 
+            text: 'Ver Candidaturas', 
+            style: 'default',
+            onPress: () => {
+              // TODO: Navegar para tela de candidaturas se disponível
+            }
+          },
+          { 
+            text: 'OK', 
+            style: 'cancel'
+          }
+        ]
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro ao enviar sua candidatura. Tente novamente.';
       
       Alert.alert(
-        'Erro',
+        'Erro ❌',
         errorMessage,
         [{ text: 'OK', style: 'default' }]
       );

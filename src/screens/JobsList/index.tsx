@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { JobCard } from '../../components/JobCard';
 import { FilterTabs } from '../../components/FilterTabs';
@@ -24,7 +25,16 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
     setSelectedCategory,
     categories,
     userApplications,
+    refreshData,
+    handleSearch,
   } = useJobsList();
+
+  // Atualizar lista quando a tela ganhar foco (voltar de detalhes)
+  useFocusEffect(
+    useCallback(() => {
+      refreshData();
+    }, [])
+  );
 
   const handleJobPress = (jobId: string) => {
     navigation.navigate('JobDetails', { jobId });
@@ -66,7 +76,7 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
             placeholder="Buscar por cargo ou empresa"
             placeholderTextColor="#A0A0A0"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearch}
           />
         </View>
       </View>
@@ -85,7 +95,7 @@ export const JobsListScreen: React.FC<JobsListScreenProps> = ({ navigation }) =>
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.jobsList}
         showsVerticalScrollIndicator={false}
-        onRefresh={() => {}}
+        onRefresh={refreshData}
         refreshing={loading}
         ListEmptyComponent={() => (
           <View style={styles.emptyContainer}>

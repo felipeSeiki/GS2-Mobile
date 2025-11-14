@@ -138,6 +138,38 @@ export const useJobsList = () => {
     }
   };
 
+  // Função para recarregar dados
+  const refreshData = async () => {
+    setLoading(true);
+    try {
+      // Recarregar candidaturas do usuário primeiro
+      if (user && user.userType === 'candidate') {
+        const applications = await ApplicationService.getUserApplications(user.id);
+        const appliedJobIds = applications.map(app => app.jobId);
+        setUserApplications(appliedJobIds);
+      }
+
+      // Recarregar vagas
+      let jobsToLoad: Job[] = [];
+      if (user?.userType === 'company') {
+        jobsToLoad = await JobService.getJobsByCompany(user.name);
+      } else {
+        // Para candidatos, usar as candidaturas atualizadas
+        const updatedApplications = user?.userType === 'candidate' 
+          ? await ApplicationService.getUserApplications(user.id)
+          : [];
+        const updatedAppliedJobIds = updatedApplications.map(app => app.jobId);
+        jobsToLoad = await JobService.getAvailableJobsForCandidate(updatedAppliedJobIds);
+      }
+
+      setJobs(jobsToLoad);
+    } catch (error) {
+      console.error('Erro ao recarregar dados:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     jobs,
     filteredJobs,
@@ -148,5 +180,7 @@ export const useJobsList = () => {
     setSelectedCategory,
     categories: ALL_CATEGORIES,
     userApplications,
+    refreshData,
+    handleSearch,
   };
 };
