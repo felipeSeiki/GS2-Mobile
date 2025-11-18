@@ -19,7 +19,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ navigation, activeTa
 
   const handleMiddleTabPress = () => {
     if (user?.userType === 'company') {
-      navigation.navigate('CreateJob');
+      navigation.navigate('CreateJob', {});
     } else {
       navigation.navigate('Applications');
     }

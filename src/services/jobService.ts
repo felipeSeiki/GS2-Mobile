@@ -209,6 +209,23 @@ export class JobService {
   }
 
   /**
+   * Delete all jobs by company ID
+   * Used for cascade deletion when a company is deleted
+   */
+  static async deleteJobsByCompany(companyId: string): Promise<number> {
+    await this.initialize();
+    const jobs = await this.getJobsByCompany(companyId);
+    
+    let deletedCount = 0;
+    for (const job of jobs) {
+      const deleted = await this.storage.delete(job.id);
+      if (deleted) deletedCount++;
+    }
+    
+    return deletedCount;
+  }
+
+  /**
    * Clear all jobs (for testing/reset)
    */
   static async clearAllJobs(): Promise<void> {

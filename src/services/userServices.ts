@@ -1,6 +1,8 @@
 import { JobCandidate, JobCompany, JobUser } from '../types/jobAuth';
 import { mockJobCandidates, mockJobCompanies } from '../mocks/jobUsers.mock';
 import { BaseStorageService } from './baseStorage';
+import { JobService } from './jobService';
+import { ApplicationService } from './applicationService';
 
 /**
  * Service for managing candidates (JobCandidate) with full CRUD operations
@@ -285,14 +287,45 @@ export class UserService {
 
   /**
    * Delete user by ID (works for both candidates and companies)
+   * Performs cascade deletion:
+   * - For companies: deletes all related jobs and their applications
+   * - For candidates: deletes all their applications
    */
   static async deleteUser(id: string): Promise<boolean> {
-    const [candidateDeleted, companyDeleted] = await Promise.all([
-      CandidateService.deleteCandidate(id),
-      CompanyService.deleteCompany(id),
-    ]);
+    // Check if it's a company
+    const company = await CompanyService.getCompanyById(id);
     
-    return candidateDeleted || companyDeleted;
+    if (company) {
+      // CASCADE DELETE for company:
+      // 1. Get all jobs from this company
+      const jobs = await JobService.getJobsByCompany(id);
+      const jobIds = jobs.map(job => job.id);
+      
+      // 2. Delete all applications for these jobs
+      if (jobIds.length > 0) {
+        await ApplicationService.deleteApplicationsByJobIds(jobIds);
+      }
+      
+      // 3. Delete all jobs from this company
+      await JobService.deleteJobsByCompany(id);
+      
+      // 4. Finally, delete the company
+      return await CompanyService.deleteCompany(id);
+    }
+    
+    // Check if it's a candidate
+    const candidate = await CandidateService.getCandidateById(id);
+    
+    if (candidate) {
+      // CASCADE DELETE for candidate:
+      // 1. Delete all applications from this candidate
+      await ApplicationService.deleteApplicationsByCandidateId(id);
+      
+      // 2. Finally, delete the candidate
+      return await CandidateService.deleteCandidate(id);
+    }
+    
+    return false;
   }
 
   /**

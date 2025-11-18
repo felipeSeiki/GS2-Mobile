@@ -29,11 +29,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onPress }) => {
   const getJobTypeLabel = (type: string) => {
     switch (type) {
       case 'full-time':
-        return 'Tempo Integral';
+        return 'CLT';
       case 'part-time':
-        return 'Meio Período';
+        return 'Freelancer';
       case 'contract':
-        return 'Contrato';
+        return 'PJ';
       case 'internship':
         return 'Estágio';
       default:

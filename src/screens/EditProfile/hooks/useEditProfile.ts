@@ -142,7 +142,7 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
   const handleDeleteAccount = () => {
     Alert.alert(
       "Excluir Conta",
-      "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.",
+      "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.",
       [
         {
           text: "Cancelar",
@@ -152,10 +152,37 @@ export const useEditProfile = (navigation: EditProfileScreenNavigationProp) => {
           text: "Excluir",
           style: "destructive",
           onPress: async () => {
+            if (!user) return;
+            
+            setLoading(true);
             try {
-              await signOut();
+              // Importar UserService dinamicamente
+              const { UserService } = await import('../../../services/userServices');
+              
+              // Excluir conta do usuário
+              const deleted = await UserService.deleteUser(user.id);
+              
+              if (deleted) {
+                Alert.alert(
+                  "Conta Excluída",
+                  "Sua conta foi excluída com sucesso.",
+                  [
+                    {
+                      text: "OK",
+                      onPress: async () => {
+                        await signOut();
+                      }
+                    }
+                  ]
+                );
+              } else {
+                Alert.alert("Erro", "Não foi possível excluir a conta. Tente novamente.");
+              }
             } catch (error) {
-              Alert.alert("Erro", "Não foi possível excluir a conta.");
+              console.error('Erro ao excluir conta:', error);
+              Alert.alert("Erro", "Não foi possível excluir a conta. Tente novamente.");
+            } finally {
+              setLoading(false);
             }
           }
         }

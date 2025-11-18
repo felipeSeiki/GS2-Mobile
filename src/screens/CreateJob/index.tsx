@@ -18,7 +18,7 @@ const contractTypes = [
   { label: 'Freelancer', value: 'part-time' },
 ];
 
-export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) => {
+export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation, route }) => {
   const {
     title,
     setTitle, 
@@ -35,23 +35,31 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
     category,
     setCategory,
     loading,
+    loadingJob,
+    isEditMode,
     handleCreateJob,
     showContractDropdown,
     setShowContractDropdown,
     showCategoryDropdown,
     setShowCategoryDropdown,
-  } = useCreateJob(navigation);
+  } = useCreateJob({ navigation, route });
 
   return (
     <SafeAreaView style={styles.container}>
       <Header 
-        title="Publicar Nova Vaga"
+        title={isEditMode ? "Editar Vaga" : "Publicar Nova Vaga"}
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
       
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      {loadingJob ? (
         <View style={styles.content}>
+          <Text style={styles.label}>Carregando dados da vaga...</Text>
+        </View>
+      ) : (
+        <>
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.content}>
           
           {/* Título da Vaga */}
           <View style={styles.section}>
@@ -198,7 +206,7 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
       {/* Botão Publicar */}
       <View style={styles.bottomContainer}>
         <Button
-          title="Publicar Vaga"
+          title={isEditMode ? "Atualizar Vaga" : "Publicar Vaga"}
           onPress={handleCreateJob}
           loading={loading}
           fullWidth
@@ -208,6 +216,8 @@ export const CreateJobScreen: React.FC<CreateJobScreenProps> = ({ navigation }) 
 
       {/* Bottom Tab Bar */}
       <BottomTabBar navigation={navigation} activeTab="applications" />
+        </>
+      )}
     </SafeAreaView>
   );
 };

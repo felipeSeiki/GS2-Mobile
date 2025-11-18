@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../types/navigation';
 import { JobService } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
+import { RouteProp } from '@react-navigation/native';
 
 type CreateJobScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'CreateJob'>;
+type CreateJobScreenRouteProp = RouteProp<RootStackParamList, 'CreateJob'>;
 
-export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
+interface UseCreateJobProps {
+  navigation: CreateJobScreenNavigationProp;
+  route: CreateJobScreenRouteProp;
+}
+
+export const useCreateJob = ({ navigation, route }: UseCreateJobProps) => {
   const { user } = useAuth();
+  const jobId = route.params?.jobId; // Pegar jobId dos parâmetros de navegação
+  const [isEditMode, setIsEditMode] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
@@ -17,8 +26,38 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
   const [salary, setSalary] = useState('');
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingJob, setLoadingJob] = useState(false);
   const [showContractDropdown, setShowContractDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+
+  // Carregar dados da vaga se estiver em modo de edição
+  useEffect(() => {
+    const loadJobData = async () => {
+      if (jobId) {
+        setIsEditMode(true);
+        setLoadingJob(true);
+        try {
+          const job = await JobService.getJobById(jobId);
+          if (job) {
+            setTitle(job.title);
+            setDescription(job.description);
+            setRequirements(job.requirements.join('\n'));
+            setLocation(job.location);
+            setContractType(job.type);
+            setSalary(job.salary || '');
+            setCategory(job.category);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar vaga:', error);
+          Alert.alert('Erro', 'Não foi possível carregar os dados da vaga.');
+        } finally {
+          setLoadingJob(false);
+        }
+      }
+    };
+
+    loadJobData();
+  }, [jobId]);
 
   const validateForm = () => {
     if (!title.trim()) {
@@ -80,36 +119,54 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
         companyId: user.id,
       };
 
-      // Criação real da vaga usando o JobService
-      await JobService.createJob(jobData);
-
-      Alert.alert(
-        'Sucesso!',
-        'Vaga publicada com sucesso!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Limpar formulário
-              setTitle('');
-              setDescription('');
-              setRequirements('');
-              setLocation('');
-              setContractType('full-time');
-              setSalary('');
-              setCategory('');
-              
-              // Navegar de volta
-              navigation.goBack();
+      if (isEditMode && jobId) {
+        // Atualizar vaga existente
+        await JobService.updateJob(jobId, jobData);
+        
+        Alert.alert(
+          'Sucesso!',
+          'Vaga atualizada com sucesso!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.goBack();
+              }
             }
-          }
-        ]
-      );
+          ]
+        );
+      } else {
+        // Criação de nova vaga usando o JobService
+        await JobService.createJob(jobData);
+
+        Alert.alert(
+          'Sucesso!',
+          'Vaga publicada com sucesso!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Limpar formulário
+                setTitle('');
+                setDescription('');
+                setRequirements('');
+                setLocation('');
+                setContractType('full-time');
+                setSalary('');
+                setCategory('');
+                
+                // Navegar de volta
+                navigation.goBack();
+              }
+            }
+          ]
+        );
+      }
 
     } catch (error) {
       Alert.alert(
         'Erro',
-        'Não foi possível publicar a vaga. Tente novamente.'
+        `Não foi possível ${isEditMode ? 'atualizar' : 'publicar'} a vaga. Tente novamente.`
       );
     } finally {
       setLoading(false);
@@ -134,6 +191,8 @@ export const useCreateJob = (navigation: CreateJobScreenNavigationProp) => {
     showCategoryDropdown,
     setShowCategoryDropdown,
     loading,
+    loadingJob,
+    isEditMode,
     handleCreateJob,
     showContractDropdown,
     setShowContractDropdown,

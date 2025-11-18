@@ -185,6 +185,42 @@ export class ApplicationService {
   }
 
   /**
+   * Delete all applications by job IDs
+   * Used for cascade deletion when jobs are deleted
+   */
+  static async deleteApplicationsByJobIds(jobIds: string[]): Promise<number> {
+    await this.initialize();
+    
+    let deletedCount = 0;
+    for (const jobId of jobIds) {
+      const applications = await this.storage.findBy(app => app.jobId === jobId);
+      for (const application of applications) {
+        const deleted = await this.storage.delete(application.id);
+        if (deleted) deletedCount++;
+      }
+    }
+    
+    return deletedCount;
+  }
+
+  /**
+   * Delete all applications by candidate ID
+   * Used for cascade deletion when a candidate is deleted
+   */
+  static async deleteApplicationsByCandidateId(candidateId: string): Promise<number> {
+    await this.initialize();
+    const applications = await this.storage.findBy(app => app.candidateId === candidateId);
+    
+    let deletedCount = 0;
+    for (const application of applications) {
+      const deleted = await this.storage.delete(application.id);
+      if (deleted) deletedCount++;
+    }
+    
+    return deletedCount;
+  }
+
+  /**
    * Clear all applications (for testing/reset)
    */
   static async clearAllApplications(): Promise<void> {

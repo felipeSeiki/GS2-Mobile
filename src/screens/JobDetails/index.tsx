@@ -12,7 +12,7 @@ type JobDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'JobDeta
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }) => {
   const { jobId } = route.params;
-  const { job, loading, handleApply, handleEdit, hasApplied, checkingApplication, isCandidate, isOwnerCompany } = useJobDetails(jobId);
+  const { job, loading, handleApply, handleEdit, hasApplied, checkingApplication, isCandidate, isOwnerCompany } = useJobDetails(jobId, navigation);
 
   if (loading || !job) {
     return (
@@ -64,9 +64,9 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, 
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Tipo:</Text>
                 <Text style={styles.infoValue}>
-                  {job.type === 'full-time' ? 'Tempo Integral' : 
-                   job.type === 'part-time' ? 'Meio Período' :
-                   job.type === 'contract' ? 'Contrato' : 'Estágio'}
+                  {job.type === 'full-time' ? 'CLT' : 
+                   job.type === 'part-time' ? 'Freelancer' :
+                   job.type === 'contract' ? 'PJ' : 'Estágio'}
                 </Text>
               </View>
             </View>

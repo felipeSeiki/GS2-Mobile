@@ -1,34 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Job } from '../../../types';
 import { JobService, ApplicationService } from '../../../services';
 import { useAuth } from '../../../contexts/AuthContext';
 
-export const useJobDetails = (jobId: string) => {
+export const useJobDetails = (jobId: string, navigation: any) => {
   const { user } = useAuth();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasApplied, setHasApplied] = useState(false);
   const [checkingApplication, setCheckingApplication] = useState(true);
 
-  useEffect(() => {
-    const loadJobDetails = async () => {
-      setLoading(true);
-      try {
-        const foundJob = await JobService.getJobById(jobId);
-        setJob(foundJob);
-      } catch (error) {
-        console.error('Erro ao carregar detalhes da vaga:', error);
-        setJob(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadJobDetails = useCallback(async () => {
+    setLoading(true);
+    try {
+      const foundJob = await JobService.getJobById(jobId);
+      setJob(foundJob);
+    } catch (error) {
+      console.error('Erro ao carregar detalhes da vaga:', error);
+      setJob(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [jobId]);
 
+  useEffect(() => {
     if (jobId) {
       loadJobDetails();
     }
-  }, [jobId]);
+  }, [jobId, loadJobDetails]);
+
+  // Recarregar dados da vaga quando a tela receber foco (após edição)
+  useFocusEffect(
+    useCallback(() => {
+      if (jobId) {
+        loadJobDetails();
+      }
+    }, [jobId, loadJobDetails])
+  );
 
   // Verificar se o usuário já se candidatou
   useEffect(() => {
@@ -101,12 +111,10 @@ export const useJobDetails = (jobId: string) => {
   const isOwnerCompany = user?.userType === 'company' && job?.company === user.name;
 
   const handleEdit = () => {
-    // TODO: Implementar navegação para tela de edição
-    Alert.alert(
-      'Editar Vaga',
-      'Funcionalidade de edição será implementada em breve.',
-      [{ text: 'OK', style: 'default' }]
-    );
+    if (!job) return;
+    
+    // Navegar para tela de criação/edição com o ID da vaga
+    navigation.navigate('CreateJob', { jobId: job.id });
   };
 
   return {
