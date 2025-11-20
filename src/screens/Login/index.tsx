@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
@@ -28,7 +27,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header 
+      <Header
+        title='WorkTree'
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
@@ -36,7 +36,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       <View style={styles.content}>
         {/* Icon */}
         <View style={styles.iconContainer}>
-          <Ionicons name="share-social" size={60} color="#4A9EFF" />
+          <Image 
+            source={require('../../../assets/LogoGs.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Title */}

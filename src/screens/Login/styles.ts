@@ -11,7 +11,10 @@ export const styles = StyleSheet.create({
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+  },
+  logo: {
+    width: 200,
+    height: 200,
   },
   title: {
     fontSize: 28,
