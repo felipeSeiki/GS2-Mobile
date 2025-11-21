@@ -34,3 +34,20 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Arquivos temporários e de teste
+response.json
+*.log
+*.md.bak
+
+# Documentação redundante (mantém apenas README.md)
+README_LOCAL.md
+API_INTEGRATION.md
+SETUP_RAPIDO.md
+CORRECAO_*.md
+
+# Arquivos de exemplo e templates (já integrados no código)
+*_example.tsx
+src_*.ts
+src_*.tsx
+*.example.*

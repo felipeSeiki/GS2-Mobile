@@ -1,7 +1,7 @@
-# DashMottu - Sistema de Gestão Logística de Motos
+# WorkTree - Plataforma de Recrutamento Inteligente
 
-**Entregável da Sprint 4 – Desafio Mottu**  
-**Mobile Application Development – 2TDSPY**
+**Global Solution 2º Semestre – FIAP 2024**  
+**DISRUPTIVE ARCHITECTURES: IOT, IOB & GENERATIVE IA**
 
 ## 👥 Desenvolvido por:
 - **Felipe Seiki Hashiguti** - RM: 98985
@@ -10,99 +10,100 @@
 
 ## 📱 Sobre o Projeto
 
-O DashMottu é um aplicativo mobile desenvolvido em React Native com Expo e TypeScript para gestão logística de motos. O sistema permite controle completo de frotas com cadastro de veículos, gerenciamento de usuários e administração de pátios operacionais.
+WorkTree é uma plataforma mobile de recrutamento que conecta candidatos e empresas com análise de compatibilidade automatizada usando IA Generativa (Google Gemini 2.0 Flash).
 
 ### Principais Funcionalidades:
-- 🔐 **Sistema de Autenticação** com 3 níveis de usuário (Master/Admin/Operador)
-- 🏍️ **Gestão de Motos** - Cadastro, visualização e controle de status
-- 👥 **Gerenciamento de Usuários** por pátio com diferentes permissões
-- 🏢 **Controle de Pátios** - Múltiplas unidades com endereços completos
-- 📊 **Dashboard** com filtros e visualização em tempo real
+- 🔐 **Autenticação** - Sistema dual (Candidato/Empresa)
+- 💼 **Gestão de Vagas** - Empresas criam e gerenciam vagas
+- 👤 **Perfil de Candidato** - Cadastro completo com experiências e habilidades
+- 🤖 **Análise de Compatibilidade com IA** - Score automático candidato-vaga
+- 📊 **Recomendações Personalizadas** - Sugestões de desenvolvimento profissional
 
 ## 🚀 Tecnologias Utilizadas
 
-- **React Native** com Expo SDK 54.0.0
+### Frontend (Mobile):
+- **React Native** com Expo
 - **TypeScript** para tipagem estática
-- **React Navigation** para navegação entre telas
+- **React Navigation** para navegação
 - **Styled Components** para estilização
-- **React Native Elements** para componentes UI
-- **AsyncStorage** para persistência de dados local
-- **Context API** para gerenciamento de estado global
+- **AsyncStorage** para persistência local
+
+### Backend (API IA):
+- **Python Flask** - API REST
+- **Google Gemini 2.0 Flash** - Análise de compatibilidade
+- **Render** - Deploy em produção
+- **API URL**: https://ia-8xoy.onrender.com
 
 ## 📋 Como Executar o Projeto
 
 ### Pré-requisitos
 - Node.js 16+
 - Expo Go instalado no dispositivo móvel
-- Git
 
 ### Instalação
 ```bash
 # Clone o repositório
-git clone https://github.com/felipeSeiki/Sprint1Mobile.git
+git clone https://github.com/felipeSeiki/GS2-Mobile.git
 
 # Entre no diretório
-cd Sprint1Mobile
+cd GS2-Mobile
 
 # Instale as dependências
 npm install
 
 # Execute o projeto
-npx expo start
+npm start
 ```
 
-### 💻 **Desenvolvimento Local** (Alternativo)
-Para testar durante desenvolvimento:
-```bash
-npx expo start
-# Escaneie o QR Code gerado
-```
+### 🔐 Credenciais de Teste:
+- **Candidato**: Qualquer email válido (mock)
+- **Empresa**: Qualquer email válido (mock)
 
-### 🔐 **Credenciais de Teste:**
-- **Admin**: `admin@mottu.com` / `123456`
-- **Operador**: `operador@mottu.com` / `123456`
-
-### 📋 **Funcionalidades para Testar:**
-- ✅ Login/Logout com diferentes perfis
-- ✅ Cadastro de motos com validação
-- ✅ Gerenciamento de usuários por pátio  
-- ✅ Dashboard com filtros dinâmicos
-- ✅ Navegação entre todas as telas
+### 📋 Funcionalidades Implementadas:
+- ✅ Autenticação dual (Candidato/Empresa)
+- ✅ CRUD completo de vagas
+- ✅ Perfil de candidato com experiências
+- ✅ **Análise de Compatibilidade com IA** (integração com API)
+- ✅ Visualização de score e recomendações
+- ✅ Navegação completa entre telas
 - ✅ Persistência de dados local
 
-## 🎨 Design e Prototipação
-**Link do Figma**: [Protótipo DashMottu](https://www.figma.com/design/dashMottu-fleet-management)
+## 🤖 Integração com IA
 
-## 📋 Informações Técnicas
+### API de Análise de Compatibilidade
+- **Endpoint**: https://ia-8xoy.onrender.com/api/analyze-compatibility
+- **Modelo**: Google Gemini 2.0 Flash
+- **Método**: POST com dados do candidato e vaga
+- **Resposta**: Score de compatibilidade (0-100%), habilidades, recomendações
 
-### QR Code
-
-![alt text](image-1.png)
-
-### **Hash do Commit Final:**
-```
-4b59efaad96efa3c1f9b1160110a517d7eac19d8
-```
-
-### **EAS Update ID:**
-```
-8afe78f9-94fb-417b-9145-1facd2909054
+### Campos Retornados:
+```json
+{
+  "compatibility_score": 85,
+  "compatibility_level": "Alto",
+  "matching_skills": ["React", "Node.js"],
+  "missing_skills": ["SQL"],
+  "strengths": [...],
+  "areas_for_improvement": [...],
+  "recommendations": [...],
+  "next_steps": "..."
+}
 ```
 
 ## 🌐 Links Importantes
 
-| Tipo | Link | Descrição |
-|------|------|-----------|
-| **📱 App Publicado** | [Expo Dashboard](https://expo.dev/accounts/felipeseiki/projects/MeuPrimeiroApp) | Versão permanente do app |
-| **💻 Repositório** | [GitHub](https://github.com/felipeSeiki/Sprint1Mobile) | Código fonte completo |
-| **🎨 Protótipo** | [Figma](https://www.figma.com/design/dashMottu-fleet-management) | Design e wireframes |
-| **📊 EAS Update** | [Dashboard EAS](https://expo.dev/accounts/felipeseiki/projects/MeuPrimeiroApp/updates/8afe78f9-94fb-417b-9145-1facd2909054) | Detalhes da publicação |
+| Recurso | Link |
+|---------|------|
+| **📱 Repositório Mobile** | [GitHub - GS2-Mobile](https://github.com/felipeSeiki/GS2-Mobile) |
+| **🤖 Repositório API IA** | [GitHub - IA](https://github.com/felipeSeiki/IA) |
+| **🚀 API em Produção** | [Render - API](https://ia-8xoy.onrender.com/api/health) |
 
 ---
 
-### 🎯 **Status da Entrega - Sprint 4**
-✅ **App Completo e Funcional** - Todas as telas implementadas  
-✅ **Publicado via EAS** - Acesso permanente via Expo Go  
-✅ **Documentação Completa** - README atualizado  
-✅ **CRUD Implementado** - Motos, Usuários e Pátios  
-✅ **Pronto para Avaliação** - Hash e links disponíveis
+## 🎯 Status do Projeto
+
+✅ **App Mobile Funcional** - Navegação completa  
+✅ **API IA Deployada** - Gemini 2.0 Flash integrado  
+✅ **Análise de Compatibilidade** - Score automático funcionando  
+✅ **Documentação Completa** - README e código comentado  
+✅ **Pronto para Apresentação** - Global Solution 2º Semestre

@@ -3,7 +3,10 @@ import { View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
+import { CompatibilityAnalysis } from '../../components/CompatibilityAnalysis';
 import { useJobDetails } from './hooks/useJobDetails';
+import { useCompatibilityAnalysis } from './hooks/useCompatibilityAnalysis';
+import { useAuth } from '../../contexts/AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
 import { styles } from './styles';
@@ -12,7 +15,18 @@ type JobDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'JobDeta
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, route }) => {
   const { jobId } = route.params;
+  const { user } = useAuth();
   const { job, loading, handleApply, handleEdit, hasApplied, checkingApplication, isCandidate, isOwnerCompany } = useJobDetails(jobId, navigation);
+  
+  // Hook para análise de compatibilidade com IA (apenas para candidatos)
+  const { 
+    analysis, 
+    loading: analysisLoading, 
+    error: analysisError 
+  } = useCompatibilityAnalysis(
+    isCandidate ? job : null, // Só analisa se for candidato
+    isCandidate ? user : null
+  );
 
   if (loading || !job) {
     return (
@@ -97,6 +111,15 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ navigation, 
                 </View>
               ))}
             </View>
+          )}
+
+          {/* Análise de Compatibilidade com IA - Apenas para candidatos */}
+          {isCandidate && (
+            <CompatibilityAnalysis
+              analysis={analysis}
+              loading={analysisLoading}
+              error={analysisError}
+            />
           )}
 
         </View>
